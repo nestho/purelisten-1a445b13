@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Ear, MessageCircleHeart } from "lucide-react";
 import heroImage from "@/assets/hero-listening.jpg";
+import LeadCapture from "@/components/LeadCapture";
 
 const HeroSection = () => {
   return (
@@ -32,7 +33,7 @@ const HeroSection = () => {
             and receive compassionate support when you need it.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 mb-12">
             <Button 
               variant="hero" 
               size="lg"
@@ -51,8 +52,10 @@ const HeroSection = () => {
               I Want to Listen
             </Button>
           </div>
+
+          <LeadCapture />
           
-          <p className="text-sm text-muted-foreground pt-4">
+          <p className="text-sm text-muted-foreground pt-8">
             Free, anonymous, and judgment-free
           </p>
         </div>
