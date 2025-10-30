@@ -1,0 +1,71 @@
+{
+  "hero": {
+    "badge": "A Space for Empathetic Listening",
+    "title": "Sometimes, all you need",
+    "titleHighlight": "someone to listen",
+    "subtitle": "Listener is a safe space where you can share your thoughts freely, and receive compassionate support when you need it.",
+    "talkButton": "I Need to Talk",
+    "listenButton": "I Want to Listen",
+    "footer": "Free, anonymous, and judgment-free"
+  },
+  "howItWorks": {
+    "title": "How",
+    "titleHighlight": "Listener",
+    "titleEnd": "Works",
+    "subtitle": "A simple, compassionate approach to human connection",
+    "steps": {
+      "share": {
+        "title": "Share Your Thoughts",
+        "description": "Express what's on your mind in a safe, judgment-free space. Your feelings are valid and heard."
+      },
+      "connect": {
+        "title": "Connect with Empathy",
+        "description": "Be matched with someone who's here to listen with compassion and understanding."
+      },
+      "choose": {
+        "title": "Choose Your Path",
+        "description": "Decide if you want supportive responses or just a caring presence to listen."
+      }
+    }
+  },
+  "features": {
+    "title": "Why Choose",
+    "titleHighlight": "Listener",
+    "subtitle": "Built on the foundation of empathy and human connection",
+    "items": {
+      "private": {
+        "title": "Private & Anonymous",
+        "description": "Your conversations are confidential. Share freely without worrying about judgment."
+      },
+      "available": {
+        "title": "Available 24/7",
+        "description": "Whenever you need support, there's someone ready to listen with empathy."
+      },
+      "real": {
+        "title": "Real Human Connection",
+        "description": "Connect with real people who understand the power of empathetic listening."
+      },
+      "compassionate": {
+        "title": "Compassionate Space",
+        "description": "A warm, welcoming environment where your emotions are valued and respected."
+      }
+    }
+  },
+  "leadCapture": {
+    "title": "Join the Waitlist",
+    "subtitle": "Be the first to know when we launch. We'll keep you updated!",
+    "emailPlaceholder": "Your email address",
+    "phonePlaceholder": "Your phone number (optional)",
+    "submitButton": "Join Waitlist",
+    "submittingButton": "Joining...",
+    "successTitle": "Welcome aboard! 🎉",
+    "successMessage": "Thank you for joining our waitlist. We'll be in touch soon!",
+    "errorTitle": "Something went wrong",
+    "errorMessage": "Please try again later.",
+    "validationError": "Please provide at least an email or phone number",
+    "privacyNote": "We respect your privacy. No spam, ever."
+  },
+  "footer": {
+    "copyright": "© 2025 Listener. A space for empathetic listening and human connection."
+  }
+}

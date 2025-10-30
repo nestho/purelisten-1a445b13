@@ -6,6 +6,7 @@ import { Mail, Phone, Sparkles, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
 
 const leadSchema = z.object({
   email: z.string().email("Please enter a valid email").optional().or(z.literal("")),
@@ -21,6 +22,7 @@ const LeadCapture = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +35,8 @@ const LeadCapture = () => {
 
     if (!validation.success) {
       toast({
-        title: "Invalid input",
-        description: validation.error.errors[0].message,
+        title: t('leadCapture.errorTitle'),
+        description: t('leadCapture.validationError'),
         variant: "destructive",
       });
       return;
@@ -57,8 +59,8 @@ const LeadCapture = () => {
       setPhone("");
       
       toast({
-        title: "Thank you for your interest!",
-        description: "We'll keep you updated on our launch.",
+        title: t('leadCapture.successTitle'),
+        description: t('leadCapture.successMessage'),
       });
 
       // Reset success state after 5 seconds
@@ -66,8 +68,8 @@ const LeadCapture = () => {
     } catch (error) {
       console.error("Error submitting lead:", error);
       toast({
-        title: "Something went wrong",
-        description: "Please try again later.",
+        title: t('leadCapture.errorTitle'),
+        description: t('leadCapture.errorMessage'),
         variant: "destructive",
       });
     } finally {
@@ -82,9 +84,9 @@ const LeadCapture = () => {
           <div className="w-16 h-16 rounded-full bg-gradient-warm flex items-center justify-center">
             <CheckCircle2 className="w-8 h-8 text-primary-foreground" />
           </div>
-          <h3 className="text-2xl font-semibold">You're on the list!</h3>
+          <h3 className="text-2xl font-semibold">{t('leadCapture.successTitle')}</h3>
           <p className="text-muted-foreground">
-            We'll notify you when Listener launches. Thank you for believing in empathetic connection.
+            {t('leadCapture.successMessage')}
           </p>
         </div>
       </Card>
@@ -99,8 +101,8 @@ const LeadCapture = () => {
             <Sparkles className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold">Join the Waitlist</h3>
-            <p className="text-sm text-muted-foreground">Be the first to know when we launch</p>
+            <h3 className="text-xl font-semibold">{t('leadCapture.title')}</h3>
+            <p className="text-sm text-muted-foreground">{t('leadCapture.subtitle')}</p>
           </div>
         </div>
 
@@ -110,7 +112,7 @@ const LeadCapture = () => {
               <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
               <Input
                 type="email"
-                placeholder="your@email.com"
+                placeholder={t('leadCapture.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10"
@@ -130,7 +132,7 @@ const LeadCapture = () => {
               <Phone className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
               <Input
                 type="tel"
-                placeholder="+1 (555) 000-0000"
+                placeholder={t('leadCapture.phonePlaceholder')}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="pl-10"
@@ -145,11 +147,11 @@ const LeadCapture = () => {
             className="w-full" 
             disabled={isSubmitting || (!email && !phone)}
           >
-            {isSubmitting ? "Joining..." : "Join Waitlist"}
+            {isSubmitting ? t('leadCapture.submittingButton') : t('leadCapture.submitButton')}
           </Button>
 
           <p className="text-xs text-center text-muted-foreground">
-            We respect your privacy. No spam, ever.
+            {t('leadCapture.privacyNote')}
           </p>
         </form>
       </div>

@@ -1,0 +1,72 @@
+{
+  "hero": {
+    "badge": "Un espace pour l'écoute empathique",
+    "title": "Parfois, tout ce dont vous avez besoin",
+    "titleHighlight": "c'est quelqu'un qui écoute",
+    "subtitle": "Listener est un espace sûr où vous pouvez partager vos pensées librement et recevoir un soutien compatissant quand vous en avez besoin.",
+    "talkButton": "J'ai besoin de parler",
+    "listenButton": "Je veux écouter",
+    "footer": "Gratuit, anonyme et sans jugement"
+  },
+  "howItWorks": {
+    "title": "Comment",
+    "titleHighlight": "Listener",
+    "titleEnd": "fonctionne",
+    "subtitle": "Une approche simple et compatissante de la connexion humaine",
+    "steps": {
+      "share": {
+        "title": "Partagez vos pensées",
+        "description": "Exprimez ce qui vous préoccupe dans un espace sûr et sans jugement. Vos sentiments sont valides et entendus."
+      },
+      "connect": {
+        "title": "Connectez-vous avec empathie",
+        "description": "Soyez mis en relation avec quelqu'un qui est là pour écouter avec compassion et compréhension."
+      },
+      "choose": {
+        "title": "Choisissez votre chemin",
+        "description": "Décidez si vous voulez des réponses de soutien ou simplement une présence attentionnée pour écouter."
+      }
+    }
+  },
+  "features": {
+    "title": "Pourquoi choisir",
+    "titleHighlight": "Listener",
+    "titleEnd": "",
+    "subtitle": "Construit sur les fondations de l'empathie et de la connexion humaine",
+    "items": {
+      "private": {
+        "title": "Privé et anonyme",
+        "description": "Vos conversations sont confidentielles. Partagez librement sans craindre le jugement."
+      },
+      "available": {
+        "title": "Disponible 24/7",
+        "description": "Chaque fois que vous avez besoin de soutien, quelqu'un est prêt à écouter avec empathie."
+      },
+      "real": {
+        "title": "Vraie connexion humaine",
+        "description": "Connectez-vous avec de vraies personnes qui comprennent le pouvoir de l'écoute empathique."
+      },
+      "compassionate": {
+        "title": "Espace compatissant",
+        "description": "Un environnement chaleureux et accueillant où vos émotions sont valorisées et respectées."
+      }
+    }
+  },
+  "leadCapture": {
+    "title": "Rejoindre la liste d'attente",
+    "subtitle": "Soyez le premier à savoir quand nous lançons. Nous vous tiendrons informé!",
+    "emailPlaceholder": "Votre adresse e-mail",
+    "phonePlaceholder": "Votre numéro de téléphone (facultatif)",
+    "submitButton": "Rejoindre la liste d'attente",
+    "submittingButton": "En cours...",
+    "successTitle": "Bienvenue à bord! 🎉",
+    "successMessage": "Merci de rejoindre notre liste d'attente. Nous vous contacterons bientôt!",
+    "errorTitle": "Quelque chose s'est mal passé",
+    "errorMessage": "Veuillez réessayer plus tard.",
+    "validationError": "Veuillez fournir au moins une adresse e-mail ou un numéro de téléphone",
+    "privacyNote": "Nous respectons votre vie privée. Pas de spam, jamais."
+  },
+  "footer": {
+    "copyright": "© 2025 Listener. Un espace pour l'écoute empathique et la connexion humaine."
+  }
+}

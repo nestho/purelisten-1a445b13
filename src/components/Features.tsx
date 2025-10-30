@@ -1,39 +1,42 @@
 import { Card } from "@/components/ui/card";
 import { Shield, Clock, Users, Heart } from "lucide-react";
-
-const features = [
-  {
-    icon: Shield,
-    title: "Private & Anonymous",
-    description: "Your conversations are confidential. Share freely without worrying about judgment."
-  },
-  {
-    icon: Clock,
-    title: "Available 24/7",
-    description: "Whenever you need support, there's someone ready to listen with empathy."
-  },
-  {
-    icon: Users,
-    title: "Real Human Connection",
-    description: "Connect with real people who understand the power of empathetic listening."
-  },
-  {
-    icon: Heart,
-    title: "Compassionate Space",
-    description: "A warm, welcoming environment where your emotions are valued and respected."
-  }
-];
+import { useTranslation } from "react-i18next";
 
 const Features = () => {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      icon: Shield,
+      titleKey: "features.items.private.title",
+      descriptionKey: "features.items.private.description"
+    },
+    {
+      icon: Clock,
+      titleKey: "features.items.available.title",
+      descriptionKey: "features.items.available.description"
+    },
+    {
+      icon: Users,
+      titleKey: "features.items.real.title",
+      descriptionKey: "features.items.real.description"
+    },
+    {
+      icon: Heart,
+      titleKey: "features.items.compassionate.title",
+      descriptionKey: "features.items.compassionate.description"
+    }
+  ];
+  
   return (
     <section className="py-24 px-4 bg-muted/30">
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-4xl md:text-5xl font-bold">
-            Why Choose <span className="bg-gradient-calm bg-clip-text text-transparent">Listener</span>
+            {t('features.title')} <span className="bg-gradient-calm bg-clip-text text-transparent">{t('features.titleHighlight')}</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Built on the foundation of empathy and human connection
+            {t('features.subtitle')}
           </p>
         </div>
         
@@ -49,11 +52,11 @@ const Features = () => {
                 </div>
                 
                 <h3 className="text-xl font-semibold">
-                  {feature.title}
+                  {t(feature.titleKey)}
                 </h3>
                 
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  {feature.description}
+                  {t(feature.descriptionKey)}
                 </p>
               </div>
             </Card>

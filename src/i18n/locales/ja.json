@@ -1,0 +1,72 @@
+{
+  "hero": {
+    "badge": "共感的な傾聴のための空間",
+    "title": "時には、必要なのは",
+    "titleHighlight": "聴いてくれる人",
+    "subtitle": "Listenerは、自由に思いを共有し、必要な時に思いやりのあるサポートを受けられる安全な場所です。",
+    "talkButton": "話したい",
+    "listenButton": "聴きたい",
+    "footer": "無料、匿名、批判なし"
+  },
+  "howItWorks": {
+    "title": "",
+    "titleHighlight": "Listener",
+    "titleEnd": "の仕組み",
+    "subtitle": "人とのつながりへのシンプルで思いやりのあるアプローチ",
+    "steps": {
+      "share": {
+        "title": "思いを共有する",
+        "description": "安全で批判のない空間で、心の中にあることを表現してください。あなたの感情は有効で聞かれています。"
+      },
+      "connect": {
+        "title": "共感でつながる",
+        "description": "思いやりと理解を持って聴いてくれる人とマッチングされます。"
+      },
+      "choose": {
+        "title": "あなたの道を選ぶ",
+        "description": "サポート的な返答が欲しいか、それとも聴いてくれる思いやりのある存在だけが欲しいかを決めてください。"
+      }
+    }
+  },
+  "features": {
+    "title": "なぜ",
+    "titleHighlight": "Listener",
+    "titleEnd": "を選ぶのか",
+    "subtitle": "共感と人とのつながりを基盤に構築",
+    "items": {
+      "private": {
+        "title": "プライベート＆匿名",
+        "description": "会話は機密です。批判を心配せずに自由に共有してください。"
+      },
+      "available": {
+        "title": "24時間365日利用可能",
+        "description": "サポートが必要な時はいつでも、共感を持って聴いてくれる人がいます。"
+      },
+      "real": {
+        "title": "本当の人とのつながり",
+        "description": "共感的な傾聴の力を理解している本当の人々とつながります。"
+      },
+      "compassionate": {
+        "title": "思いやりのある空間",
+        "description": "あなたの感情が大切にされ、尊重される温かく歓迎的な環境。"
+      }
+    }
+  },
+  "leadCapture": {
+    "title": "ウェイトリストに参加",
+    "subtitle": "ローンチ時に最初に知る人になりましょう。最新情報をお届けします！",
+    "emailPlaceholder": "メールアドレス",
+    "phonePlaceholder": "電話番号（任意）",
+    "submitButton": "ウェイトリストに参加",
+    "submittingButton": "参加中...",
+    "successTitle": "ようこそ！🎉",
+    "successMessage": "ウェイトリストへの参加ありがとうございます。まもなくご連絡いたします！",
+    "errorTitle": "問題が発生しました",
+    "errorMessage": "後でもう一度お試しください。",
+    "validationError": "メールアドレスまたは電話番号を少なくとも1つ入力してください",
+    "privacyNote": "お客様のプライバシーを尊重します。スパムは一切ありません。"
+  },
+  "footer": {
+    "copyright": "© 2025 Listener. 共感的な傾聴と人とのつながりのための空間。"
+  }
+}

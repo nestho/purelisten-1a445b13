@@ -2,8 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Ear, MessageCircleHeart } from "lucide-react";
 import heroImage from "@/assets/hero-listening.jpg";
 import LeadCapture from "@/components/LeadCapture";
+import { useTranslation } from "react-i18next";
 
 const HeroSection = () => {
+  const { t } = useTranslation();
+  
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-hero overflow-hidden">
       <div className="absolute inset-0 opacity-20">
@@ -18,19 +21,18 @@ const HeroSection = () => {
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <div className="inline-block mb-4">
             <div className="bg-card/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-card">
-              <p className="text-primary font-semibold">A Space for Empathetic Listening</p>
+              <p className="text-primary font-semibold">{t('hero.badge')}</p>
             </div>
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-            Sometimes, all you need
+            {t('hero.title')}
             <br />
-            is <span className="bg-gradient-warm bg-clip-text text-transparent">someone to listen</span>
+            {t('hero.titleHighlight').split(' ')[0] === 'is' ? 'is ' : ''}<span className="bg-gradient-warm bg-clip-text text-transparent">{t('hero.titleHighlight')}</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Listener is a safe space where you can share your thoughts freely, 
-            and receive compassionate support when you need it.
+            {t('hero.subtitle')}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 mb-12">
@@ -40,7 +42,7 @@ const HeroSection = () => {
               className="w-full sm:w-auto min-w-[240px]"
             >
               <MessageCircleHeart className="w-5 h-5" />
-              I Need to Talk
+              {t('hero.talkButton')}
             </Button>
             
             <Button 
@@ -49,14 +51,14 @@ const HeroSection = () => {
               className="w-full sm:w-auto min-w-[240px]"
             >
               <Ear className="w-5 h-5" />
-              I Want to Listen
+              {t('hero.listenButton')}
             </Button>
           </div>
 
           <LeadCapture />
           
           <p className="text-sm text-muted-foreground pt-8">
-            Free, anonymous, and judgment-free
+            {t('hero.footer')}
           </p>
         </div>
       </div>

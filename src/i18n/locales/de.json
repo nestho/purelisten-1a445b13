@@ -1,0 +1,72 @@
+{
+  "hero": {
+    "badge": "Ein Raum für empathisches Zuhören",
+    "title": "Manchmal brauchst du nur",
+    "titleHighlight": "jemanden, der zuhört",
+    "subtitle": "Listener ist ein sicherer Raum, in dem du deine Gedanken frei teilen und mitfühlende Unterstützung erhalten kannst, wenn du sie brauchst.",
+    "talkButton": "Ich muss reden",
+    "listenButton": "Ich möchte zuhören",
+    "footer": "Kostenlos, anonym und urteilsfrei"
+  },
+  "howItWorks": {
+    "title": "Wie",
+    "titleHighlight": "Listener",
+    "titleEnd": "funktioniert",
+    "subtitle": "Ein einfacher, mitfühlender Ansatz für menschliche Verbindung",
+    "steps": {
+      "share": {
+        "title": "Teile deine Gedanken",
+        "description": "Drücke aus, was dir auf dem Herzen liegt, in einem sicheren, urteilsfreien Raum. Deine Gefühle sind gültig und werden gehört."
+      },
+      "connect": {
+        "title": "Verbinde dich mit Empathie",
+        "description": "Werde mit jemandem zusammengebracht, der hier ist, um mit Mitgefühl und Verständnis zuzuhören."
+      },
+      "choose": {
+        "title": "Wähle deinen Weg",
+        "description": "Entscheide, ob du unterstützende Antworten möchtest oder nur eine fürsorgliche Präsenz zum Zuhören."
+      }
+    }
+  },
+  "features": {
+    "title": "Warum",
+    "titleHighlight": "Listener",
+    "titleEnd": "wählen",
+    "subtitle": "Aufgebaut auf dem Fundament von Empathie und menschlicher Verbindung",
+    "items": {
+      "private": {
+        "title": "Privat & anonym",
+        "description": "Deine Gespräche sind vertraulich. Teile frei, ohne dir Sorgen über Urteile zu machen."
+      },
+      "available": {
+        "title": "24/7 verfügbar",
+        "description": "Wann immer du Unterstützung brauchst, ist jemand bereit, mit Empathie zuzuhören."
+      },
+      "real": {
+        "title": "Echte menschliche Verbindung",
+        "description": "Verbinde dich mit echten Menschen, die die Kraft des empathischen Zuhörens verstehen."
+      },
+      "compassionate": {
+        "title": "Mitfühlender Raum",
+        "description": "Eine warme, einladende Umgebung, in der deine Emotionen geschätzt und respektiert werden."
+      }
+    }
+  },
+  "leadCapture": {
+    "title": "Warteliste beitreten",
+    "subtitle": "Sei der Erste, der erfährt, wenn wir starten. Wir halten dich auf dem Laufenden!",
+    "emailPlaceholder": "Deine E-Mail-Adresse",
+    "phonePlaceholder": "Deine Telefonnummer (optional)",
+    "submitButton": "Warteliste beitreten",
+    "submittingButton": "Beitritt läuft...",
+    "successTitle": "Willkommen an Bord! 🎉",
+    "successMessage": "Danke, dass du unserer Warteliste beigetreten bist. Wir melden uns bald!",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorMessage": "Bitte versuche es später noch einmal.",
+    "validationError": "Bitte gib mindestens eine E-Mail-Adresse oder Telefonnummer an",
+    "privacyNote": "Wir respektieren deine Privatsphäre. Kein Spam, niemals."
+  },
+  "footer": {
+    "copyright": "© 2025 Listener. Ein Raum für empathisches Zuhören und menschliche Verbindung."
+  }
+}

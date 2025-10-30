@@ -1,37 +1,40 @@
 import { Card } from "@/components/ui/card";
 import { MessageSquare, HeartHandshake, Sparkles } from "lucide-react";
-
-const steps = [
-  {
-    icon: MessageSquare,
-    title: "Share Your Thoughts",
-    description: "Express what's on your mind in a safe, judgment-free space. Your feelings are valid and heard.",
-    gradient: "from-primary/10 to-primary/5"
-  },
-  {
-    icon: HeartHandshake,
-    title: "Connect with Empathy",
-    description: "Be matched with someone who's here to listen with compassion and understanding.",
-    gradient: "from-secondary/10 to-secondary/5"
-  },
-  {
-    icon: Sparkles,
-    title: "Choose Your Path",
-    description: "Decide if you want supportive responses or just a caring presence to listen.",
-    gradient: "from-accent/20 to-accent/5"
-  }
-];
+import { useTranslation } from "react-i18next";
 
 const HowItWorks = () => {
+  const { t } = useTranslation();
+
+  const steps = [
+    {
+      icon: MessageSquare,
+      titleKey: "howItWorks.steps.share.title",
+      descriptionKey: "howItWorks.steps.share.description",
+      gradient: "from-primary/10 to-primary/5"
+    },
+    {
+      icon: HeartHandshake,
+      titleKey: "howItWorks.steps.connect.title",
+      descriptionKey: "howItWorks.steps.connect.description",
+      gradient: "from-secondary/10 to-secondary/5"
+    },
+    {
+      icon: Sparkles,
+      titleKey: "howItWorks.steps.choose.title",
+      descriptionKey: "howItWorks.steps.choose.description",
+      gradient: "from-accent/20 to-accent/5"
+    }
+  ];
+  
   return (
     <section className="py-24 px-4">
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-4xl md:text-5xl font-bold">
-            How <span className="bg-gradient-warm bg-clip-text text-transparent">Listener</span> Works
+            {t('howItWorks.title')} <span className="bg-gradient-warm bg-clip-text text-transparent">{t('howItWorks.titleHighlight')}</span> {t('howItWorks.titleEnd')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            A simple, compassionate approach to human connection
+            {t('howItWorks.subtitle')}
           </p>
         </div>
         
@@ -51,11 +54,11 @@ const HowItWorks = () => {
                 </div>
                 
                 <h3 className="text-2xl font-semibold">
-                  {step.title}
+                  {t(step.titleKey)}
                 </h3>
                 
                 <p className="text-muted-foreground leading-relaxed">
-                  {step.description}
+                  {t(step.descriptionKey)}
                 </p>
               </div>
             </Card>
