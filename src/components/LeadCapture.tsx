@@ -9,8 +9,13 @@ import { z } from "zod";
 import { useTranslation } from "react-i18next";
 
 const leadSchema = z.object({
-  email: z.string().email("Please enter a valid email").optional().or(z.literal("")),
-  phone: z.string().min(10, "Please enter a valid phone number").optional().or(z.literal("")),
+  email: z.string().trim().email("Please enter a valid email").max(255).optional().or(z.literal("")),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^\+?[1-9]\d{7,14}$/, "Please enter a valid phone number")
+    .optional()
+    .or(z.literal("")),
 }).refine(
   (data) => data.email || data.phone,
   { message: "Please provide at least an email or phone number" }
@@ -66,7 +71,6 @@ const LeadCapture = () => {
       // Reset success state after 5 seconds
       setTimeout(() => setIsSuccess(false), 5000);
     } catch (error) {
-      console.error("Error submitting lead:", error);
       toast({
         title: t('leadCapture.errorTitle'),
         description: t('leadCapture.errorMessage'),
