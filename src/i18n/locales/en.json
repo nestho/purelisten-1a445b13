@@ -65,7 +65,34 @@
     "validationError": "Please provide at least an email or phone number",
     "privacyNote": "We respect your privacy. No spam, ever."
   },
+  "comfort": {
+    "messages": [
+      "You are not too much. You are not too late.",
+      "This feeling is heavy, but it is not permanent.",
+      "Someone is awake right now, ready to listen to you.",
+      "You don't need the right words. Just start.",
+      "Being here, reading this, is already a step forward."
+    ]
+  },
+  "liveStats": {
+    "listeners": "listeners online right now",
+    "conversations": "conversations held",
+    "hearts": "moments of comfort shared"
+  },
+  "breathe": {
+    "title": "Feeling overwhelmed?",
+    "titleHighlight": "Breathe with us",
+    "subtitle": "One minute of slow breathing can soften a hard moment. Follow the circle — nothing else to do.",
+    "ready": "Ready?",
+    "start": "Start breathing",
+    "stop": "Stop",
+    "inhale": "Breathe in",
+    "hold": "Hold",
+    "exhale": "Breathe out"
+  },
   "footer": {
+    "tagline": "You never have to carry it alone.",
     "copyright": "© 2025 Listener. A space for empathetic listening and human connection."
   }
 }
+
