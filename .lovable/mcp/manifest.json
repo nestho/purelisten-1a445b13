@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.2",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://fzloljyizlkxgwmfbgao.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "purelisten",
+      "version": "0.1.0",
+      "title": "purelisten"
+    },
+    "tools": [
+      {
+        "name": "get_comfort",
+        "title": "Get a comforting message",
+        "description": "Return a gentle, grounding message from purelisten, optionally with a guided 4-7-8 breathing exercise. Use when someone feels sad, anxious, or hopeless.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "include_breathing": {
+              "type": "boolean",
+              "default": false,
+              "description": "Also include the 4-7-8 breathing exercise steps."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "submit_lead",
+        "title": "Join the waitlist",
+        "description": "Add an email address and/or phone number to the purelisten waitlist. At least one contact method is required.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Email address, or null."
+            },
+            "phone": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Phone number in E.164-ish format (e.g. +14155551234), or null."
+            }
+          },
+          "required": [
+            "email",
+            "phone"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_leads",
+        "title": "List waitlist leads",
+        "description": "List the most recent waitlist leads (email/phone) captured on purelisten. Requires an admin account.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "description": "How many recent leads to return (1-100)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "lead_stats",
+        "title": "Waitlist stats",
+        "description": "Summarize purelisten waitlist signups: total leads, and how many arrived in the last 7 days. Requires an admin account.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
