@@ -1,88 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..600&family=Nunito+Sans:opsz,wght@6..12,300..800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Design system. All colors MUST be HSL.
+   Palette chosen for emotional comfort: warm peach/coral (safety, warmth),
+   soft sky blue (calm, trust), gentle sage (hope, renewal). */
 
 @layer base {
   :root {
-    --background: 28 35% 97%;
-    --foreground: 220 15% 20%;
+    --background: 30 44% 98%;
+    --foreground: 222 24% 22%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 15% 20%;
+    --card-foreground: 222 24% 22%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 20%;
+    --popover-foreground: 222 24% 22%;
 
-    --primary: 14 85% 62%;
+    --primary: 14 82% 64%;
     --primary-foreground: 0 0% 100%;
+    --primary-glow: 25 92% 74%;
 
-    --secondary: 205 70% 65%;
+    --secondary: 200 62% 66%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 28 25% 92%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 30 28% 94%;
+    --muted-foreground: 222 12% 46%;
 
-    --accent: 14 75% 92%;
-    --accent-foreground: 14 85% 35%;
+    --accent: 152 34% 88%;
+    --accent-foreground: 158 40% 26%;
 
-    --destructive: 0 84.2% 60.2%;
+    --hope: 152 38% 60%;
+    --hope-foreground: 0 0% 100%;
+
+    --destructive: 0 74% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 28 20% 88%;
-    --input: 28 20% 88%;
-    --ring: 14 85% 62%;
+    --border: 28 24% 90%;
+    --input: 28 24% 90%;
+    --ring: 14 82% 64%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
-    --gradient-warm: linear-gradient(135deg, hsl(14 85% 62%) 0%, hsl(25 90% 68%) 100%);
-    --gradient-calm: linear-gradient(135deg, hsl(205 70% 65%) 0%, hsl(215 75% 72%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(28 35% 97%) 0%, hsl(14 75% 95%) 100%);
-    
-    --shadow-soft: 0 4px 20px -2px hsl(14 85% 62% / 0.12);
-    --shadow-card: 0 8px 30px -4px hsl(220 15% 20% / 0.08);
-    
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --gradient-warm: linear-gradient(135deg, hsl(14 82% 64%) 0%, hsl(25 92% 72%) 100%);
+    --gradient-calm: linear-gradient(135deg, hsl(200 62% 66%) 0%, hsl(152 38% 66%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(30 44% 98%) 0%, hsl(20 70% 96%) 45%, hsl(190 45% 96%) 100%);
+    --gradient-glow: radial-gradient(circle at 50% 50%, hsl(25 92% 74% / 0.55) 0%, transparent 70%);
+
+    --shadow-soft: 0 4px 24px -4px hsl(14 82% 64% / 0.16);
+    --shadow-card: 0 12px 40px -12px hsl(222 24% 22% / 0.12);
+    --shadow-glow: 0 0 60px -10px hsl(25 92% 74% / 0.55);
+
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
-    --background: 220 20% 12%;
-    --foreground: 28 20% 95%;
+    --background: 222 28% 11%;
+    --foreground: 30 26% 95%;
 
-    --card: 220 18% 16%;
-    --card-foreground: 28 20% 95%;
+    --card: 222 24% 15%;
+    --card-foreground: 30 26% 95%;
 
-    --popover: 220 18% 16%;
-    --popover-foreground: 28 20% 95%;
+    --popover: 222 24% 15%;
+    --popover-foreground: 30 26% 95%;
 
-    --primary: 14 85% 62%;
+    --primary: 14 82% 62%;
     --primary-foreground: 0 0% 100%;
+    --primary-glow: 25 88% 66%;
 
-    --secondary: 205 70% 65%;
+    --secondary: 200 55% 58%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 15% 22%;
-    --muted-foreground: 28 15% 65%;
+    --muted: 222 18% 20%;
+    --muted-foreground: 30 14% 68%;
 
-    --accent: 220 15% 22%;
-    --accent-foreground: 14 85% 75%;
+    --accent: 222 18% 20%;
+    --accent-foreground: 152 40% 72%;
 
-    --destructive: 0 62.8% 50%;
+    --hope: 152 34% 52%;
+    --hope-foreground: 0 0% 100%;
+
+    --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 22%;
-    --input: 220 15% 22%;
-    --ring: 14 85% 62%;
+    --border: 222 18% 22%;
+    --input: 222 18% 22%;
+    --ring: 14 82% 62%;
 
-    --gradient-warm: linear-gradient(135deg, hsl(14 85% 55%) 0%, hsl(25 90% 62%) 100%);
-    --gradient-calm: linear-gradient(135deg, hsl(205 70% 58%) 0%, hsl(215 75% 65%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(220 20% 12%) 0%, hsl(220 18% 16%) 100%);
-    
-    --shadow-soft: 0 4px 20px -2px hsl(14 85% 62% / 0.2);
-    --shadow-card: 0 8px 30px -4px hsl(0 0% 0% / 0.3);
+    --gradient-warm: linear-gradient(135deg, hsl(14 82% 56%) 0%, hsl(25 88% 62%) 100%);
+    --gradient-calm: linear-gradient(135deg, hsl(200 55% 54%) 0%, hsl(152 34% 50%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(222 28% 11%) 0%, hsl(222 26% 14%) 60%, hsl(200 24% 16%) 100%);
+    --gradient-glow: radial-gradient(circle at 50% 50%, hsl(25 88% 62% / 0.35) 0%, transparent 70%);
+
+    --shadow-soft: 0 4px 24px -4px hsl(14 82% 62% / 0.25);
+    --shadow-card: 0 12px 40px -12px hsl(0 0% 0% / 0.45);
+    --shadow-glow: 0 0 60px -10px hsl(25 88% 62% / 0.4);
   }
 }
 
@@ -92,6 +106,46 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "kern", "liga";
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-card/70 backdrop-blur-xl border border-border/60;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1.5;
+  }
+
+  .text-gradient-warm {
+    @apply bg-gradient-warm bg-clip-text text-transparent;
+  }
+}
+
+@layer utilities {
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
