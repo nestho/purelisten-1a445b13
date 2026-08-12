@@ -1,9 +1,9 @@
 {
   "hero": {
-    "badge": "Ein Raum für empathisches Zuhören",
+    "badge": "Demnächst — Warteliste beitreten",
     "title": "Manchmal brauchst du nur",
     "titleHighlight": "jemanden, der zuhört",
-    "subtitle": "Listener ist ein sicherer Raum, in dem du deine Gedanken frei teilen und mitfühlende Unterstützung erhalten kannst, wenn du sie brauchst.",
+    "subtitle": "Listener ist ein kostenloser, anonymer Raum für empathisches Zuhören. Wir bauen gerade die erste Version — tritt der Warteliste bei und sei unter den Ersten.",
     "talkButton": "Ich muss reden",
     "listenButton": "Ich möchte zuhören",
     "footer": "Kostenlos, anonym und urteilsfrei"
@@ -11,7 +11,7 @@
   "howItWorks": {
     "title": "Wie",
     "titleHighlight": "Listener",
-    "titleEnd": "funktioniert",
+    "titleEnd": "funktionieren wird",
     "subtitle": "Ein einfacher, mitfühlender Ansatz für menschliche Verbindung",
     "steps": {
       "share": {
@@ -31,16 +31,15 @@
   "features": {
     "title": "Warum",
     "titleHighlight": "Listener",
-    "titleEnd": "wählen",
     "subtitle": "Aufgebaut auf dem Fundament von Empathie und menschlicher Verbindung",
     "items": {
       "private": {
         "title": "Privat & anonym",
-        "description": "Deine Gespräche sind vertraulich. Teile frei, ohne dir Sorgen über Urteile zu machen."
+        "description": "Deine Gespräche bleiben vertraulich. Teile frei, ohne dir Sorgen über Urteile zu machen."
       },
       "available": {
-        "title": "24/7 verfügbar",
-        "description": "Wann immer du Unterstützung brauchst, ist jemand bereit, mit Empathie zuzuhören."
+        "title": "Da, wenn du es brauchst",
+        "description": "Unterstützung sollte nicht nur während der Bürozeiten existieren. Wir bauen fürs echte Leben."
       },
       "real": {
         "title": "Echte menschliche Verbindung",
@@ -54,19 +53,47 @@
   },
   "leadCapture": {
     "title": "Warteliste beitreten",
-    "subtitle": "Sei der Erste, der erfährt, wenn wir starten. Wir halten dich auf dem Laufenden!",
+    "subtitle": "Sei unter den Ersten beim Start. Kein Spam — nur eine E-Mail, wenn es soweit ist.",
     "emailPlaceholder": "Deine E-Mail-Adresse",
     "phonePlaceholder": "Deine Telefonnummer (optional)",
     "submitButton": "Warteliste beitreten",
     "submittingButton": "Beitritt läuft...",
-    "successTitle": "Willkommen an Bord! 🎉",
-    "successMessage": "Danke, dass du unserer Warteliste beigetreten bist. Wir melden uns bald!",
+    "successTitle": "Du bist auf der Liste",
+    "successMessage": "Danke fürs Mitmachen. Wir schreiben dir, wenn Listener bereit ist.",
+    "alreadyTitle": "Du bist schon auf der Liste",
+    "alreadyMessage": "Wir haben deine Kontaktdaten. Wir melden uns beim Launch.",
     "errorTitle": "Etwas ist schiefgelaufen",
-    "errorMessage": "Bitte versuche es später noch einmal.",
-    "validationError": "Bitte gib mindestens eine E-Mail-Adresse oder Telefonnummer an",
+    "errorMessage": "Bitte versuche es gleich noch einmal.",
+    "validationError": "Bitte gib mindestens eine gültige E-Mail oder Telefonnummer an",
     "privacyNote": "Wir respektieren deine Privatsphäre. Kein Spam, niemals."
   },
+  "comfort": {
+    "messages": [
+      "Du bist nicht zu viel. Du bist nicht zu spät.",
+      "Dieses Gefühl ist schwer, aber es ist nicht dauerhaft.",
+      "Du musst nicht alles allein tragen.",
+      "Du brauchst nicht die richtigen Worte. Fang einfach an.",
+      "Dass du hier bist und das liest, ist schon ein Schritt vorwärts."
+    ]
+  },
+  "live": {
+    "building": "Wir bauen aktiv die erste Version",
+    "waitlistOpen": "Warteliste offen",
+    "honest": "Keine Fake-Zahlen — nur echter Fortschritt"
+  },
+  "breathe": {
+    "title": "Überwältigt?",
+    "titleHighlight": "Atme mit uns",
+    "subtitle": "Eine Minute langsames Atmen kann einen harten Moment weicher machen. Folge dem Kreis — sonst nichts zu tun.",
+    "ready": "Bereit?",
+    "start": "Atmen starten",
+    "stop": "Stopp",
+    "inhale": "Einatmen",
+    "hold": "Halten",
+    "exhale": "Ausatmen"
+  },
   "footer": {
-    "copyright": "© 2025 Listener. Ein Raum für empathisches Zuhören und menschliche Verbindung."
+    "tagline": "Du musst es nie allein tragen.",
+    "copyright": "© 2026 Listener. Wir bauen einen Raum für empathisches Zuhören."
   }
 }

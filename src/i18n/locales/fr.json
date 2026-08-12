@@ -1,9 +1,9 @@
 {
   "hero": {
-    "badge": "Un espace pour l'écoute empathique",
+    "badge": "Bientôt — rejoignez la liste d'attente",
     "title": "Parfois, tout ce dont vous avez besoin",
     "titleHighlight": "c'est quelqu'un qui écoute",
-    "subtitle": "Listener est un espace sûr où vous pouvez partager vos pensées librement et recevoir un soutien compatissant quand vous en avez besoin.",
+    "subtitle": "Listener est un espace gratuit et anonyme pour l'écoute empathique. Nous construisons la première version maintenant — rejoignez la liste d'attente pour être parmi les premiers.",
     "talkButton": "J'ai besoin de parler",
     "listenButton": "Je veux écouter",
     "footer": "Gratuit, anonyme et sans jugement"
@@ -11,7 +11,7 @@
   "howItWorks": {
     "title": "Comment",
     "titleHighlight": "Listener",
-    "titleEnd": "fonctionne",
+    "titleEnd": "fonctionnera",
     "subtitle": "Une approche simple et compatissante de la connexion humaine",
     "steps": {
       "share": {
@@ -29,18 +29,17 @@
     }
   },
   "features": {
-    "title": "Pourquoi choisir",
+    "title": "Pourquoi",
     "titleHighlight": "Listener",
-    "titleEnd": "",
     "subtitle": "Construit sur les fondations de l'empathie et de la connexion humaine",
     "items": {
       "private": {
         "title": "Privé et anonyme",
-        "description": "Vos conversations sont confidentielles. Partagez librement sans craindre le jugement."
+        "description": "Vos conversations restent confidentielles. Partagez librement sans craindre le jugement."
       },
       "available": {
-        "title": "Disponible 24/7",
-        "description": "Chaque fois que vous avez besoin de soutien, quelqu'un est prêt à écouter avec empathie."
+        "title": "Disponible quand vous en avez besoin",
+        "description": "Le soutien ne devrait pas exister seulement pendant les heures de bureau. Nous construisons pour la vraie vie."
       },
       "real": {
         "title": "Vraie connexion humaine",
@@ -54,19 +53,47 @@
   },
   "leadCapture": {
     "title": "Rejoindre la liste d'attente",
-    "subtitle": "Soyez le premier à savoir quand nous lançons. Nous vous tiendrons informé!",
+    "subtitle": "Soyez parmi les premiers au lancement. Pas de spam — juste un e-mail quand ce sera prêt.",
     "emailPlaceholder": "Votre adresse e-mail",
     "phonePlaceholder": "Votre numéro de téléphone (facultatif)",
     "submitButton": "Rejoindre la liste d'attente",
     "submittingButton": "En cours...",
-    "successTitle": "Bienvenue à bord! 🎉",
-    "successMessage": "Merci de rejoindre notre liste d'attente. Nous vous contacterons bientôt!",
+    "successTitle": "Vous êtes sur la liste",
+    "successMessage": "Merci de nous rejoindre. Nous vous écrirons quand Listener sera prêt.",
+    "alreadyTitle": "Vous êtes déjà sur la liste",
+    "alreadyMessage": "Nous avons déjà vos coordonnées. Nous vous contacterons au lancement.",
     "errorTitle": "Quelque chose s'est mal passé",
-    "errorMessage": "Veuillez réessayer plus tard.",
-    "validationError": "Veuillez fournir au moins une adresse e-mail ou un numéro de téléphone",
+    "errorMessage": "Veuillez réessayer dans un instant.",
+    "validationError": "Veuillez fournir au moins un e-mail ou un numéro de téléphone valide",
     "privacyNote": "Nous respectons votre vie privée. Pas de spam, jamais."
   },
+  "comfort": {
+    "messages": [
+      "Vous n'êtes pas de trop. Vous n'êtes pas trop tard.",
+      "Ce sentiment est lourd, mais il n'est pas permanent.",
+      "Vous n'avez pas à tout affronter seul.",
+      "Vous n'avez pas besoin des bons mots. Commencez simplement.",
+      "Être ici et lire ceci est déjà un pas en avant."
+    ]
+  },
+  "live": {
+    "building": "Nous construisons activement la première version",
+    "waitlistOpen": "Liste d'attente ouverte",
+    "honest": "Pas de faux chiffres — juste de vrais progrès"
+  },
+  "breathe": {
+    "title": "Vous vous sentez dépassé ?",
+    "titleHighlight": "Respirez avec nous",
+    "subtitle": "Une minute de respiration lente peut adoucir un moment difficile. Suivez le cercle — rien d'autre à faire.",
+    "ready": "Prêt ?",
+    "start": "Commencer à respirer",
+    "stop": "Arrêter",
+    "inhale": "Inspirez",
+    "hold": "Retenez",
+    "exhale": "Expirez"
+  },
   "footer": {
-    "copyright": "© 2025 Listener. Un espace pour l'écoute empathique et la connexion humaine."
+    "tagline": "Vous n'avez jamais à porter ça seul.",
+    "copyright": "© 2026 Listener. Nous construisons un espace pour l'écoute empathique."
   }
 }

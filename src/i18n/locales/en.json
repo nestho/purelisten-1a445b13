@@ -76,6 +76,11 @@
       "Being here, reading this, is already a step forward."
     ]
   },
+  "live": {
+    "building": "We're actively building the first version",
+    "waitlistOpen": "Waitlist open",
+    "honest": "No fake numbers — just real progress"
+  },
   "breathe": {
     "title": "Feeling overwhelmed?",
     "titleHighlight": "Breathe with us",
