@@ -9,6 +9,10 @@ type Body = {
   mediaUrl?: string | null;
   mediaMime?: string | null;
   mediaName?: string | null;
+  visitorName?: string | null;
+  ip?: string | null;
+  country?: string | null;
+  userAgent?: string | null;
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -25,6 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: "Telegram not configured" });
   }
 
+  const body = req.body as Body;
   const {
     sessionId,
     messageId,
@@ -33,7 +38,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     mediaType,
     mediaUrl,
     mediaName,
-  } = req.body as Body;
+    visitorName,
+    ip,
+    country,
+    userAgent,
+  } = body;
 
   if (!sessionId) {
     return res.status(400).json({ error: "sessionId required" });
@@ -58,11 +67,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const shortId = sessionId.slice(0, 8);
-  const captionPrefix = isNewSession
-    ? `🆕 New talk  #${shortId}\n`
-    : `💬 #${shortId}\n`;
+  const nameLine = visitorName ? `Name: ${visitorName}` : "Name: (not given)";
+  const metaBlock = isNewSession
+    ? [
+        "🆕 New conversation",
+        `#${shortId}`,
+        nameLine,
+        ip ? `IP: ${ip}` : null,
+        country ? `Country: ${country}` : null,
+        userAgent ? `Device: ${userAgent.slice(0, 120)}` : null,
+        "",
+      ]
+        .filter(Boolean)
+        .join("\n")
+    : `💬 #${shortId}${visitorName ? ` · ${visitorName}` : ""}`;
+
   const caption =
-    `${captionPrefix}${text ? `👤 ${text}` : "👤 (media)"}\n\n✍️ Type here to reply — auto-sent to this person.`.slice(
+    `${metaBlock}\n👤 ${text || "(media)"}\n\n✍️ Type to reply — goes to them automatically.`.slice(
       0,
       1024
     );
@@ -71,51 +92,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let tgData: { ok: boolean; result?: { message_id: number }; description?: string };
 
     if (mediaUrl && mediaType === "image") {
-      tgData = await tgApi(token, "sendPhoto", {
-        chat_id: chatId,
-        photo: mediaUrl,
-        caption,
-      });
+      tgData = await tgApi(token, "sendPhoto", { chat_id: chatId, photo: mediaUrl, caption });
     } else if (mediaUrl && (mediaType === "voice" || mediaType === "audio")) {
       const method = mediaType === "voice" ? "sendVoice" : "sendAudio";
       const field = mediaType === "voice" ? "voice" : "audio";
-      tgData = await tgApi(token, method, {
-        chat_id: chatId,
-        [field]: mediaUrl,
-        caption,
-      });
+      tgData = await tgApi(token, method, { chat_id: chatId, [field]: mediaUrl, caption });
     } else if (mediaUrl && mediaType === "video") {
-      tgData = await tgApi(token, "sendVideo", {
-        chat_id: chatId,
-        video: mediaUrl,
-        caption,
-      });
-    } else if (mediaUrl) {
+      tgData = await tgApi(token, "sendVideo", { chat_id: chatId, video: mediaUrl, caption });
+    } else if (mediaUrl && mediaType !== "link") {
       tgData = await tgApi(token, "sendDocument", {
         chat_id: chatId,
         document: mediaUrl,
         caption: caption + (mediaName ? `\n📎 ${mediaName}` : ""),
       });
     } else {
+      const full =
+        mediaType === "link" && mediaUrl
+          ? `${caption}\n🔗 ${mediaUrl}`
+          : caption;
       tgData = await tgApi(token, "sendMessage", {
         chat_id: chatId,
-        text: caption,
+        text: full.slice(0, 4000),
         disable_web_page_preview: false,
       });
     }
 
+    if (!tgData.ok && mediaUrl) {
+      tgData = await tgApi(token, "sendMessage", {
+        chat_id: chatId,
+        text: `${caption}\n🔗 ${mediaUrl}`.slice(0, 4000),
+      });
+    }
+
     if (!tgData.ok) {
-      // Fallback: send as link text if Telegram can't fetch the URL
-      if (mediaUrl) {
-        tgData = await tgApi(token, "sendMessage", {
-          chat_id: chatId,
-          text: `${caption}\n\n🔗 ${mediaUrl}`,
-          disable_web_page_preview: false,
-        });
-      }
-      if (!tgData.ok) {
-        return res.status(502).json({ error: tgData.description || "Telegram error" });
-      }
+      return res.status(502).json({ error: tgData.description || "Telegram error" });
     }
 
     const telegramMessageId = tgData.result?.message_id;

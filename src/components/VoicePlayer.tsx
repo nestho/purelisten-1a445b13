@@ -8,15 +8,16 @@ function formatTime(sec: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-/** Deterministic soft waveform from url string */
-function barsFromSeed(seed: string, count = 28) {
+function barsFromSeed(seed: string, count = 32) {
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
   const out: number[] = [];
   for (let i = 0; i < count; i++) {
     h = (h * 1664525 + 1013904223) >>> 0;
     const n = (h % 1000) / 1000;
-    out.push(0.22 + n * 0.78);
+    // smoother RN-like envelope
+    const envelope = Math.sin((i / count) * Math.PI) * 0.35 + 0.65;
+    out.push((0.18 + n * 0.82) * envelope);
   }
   return out;
 }
@@ -34,7 +35,6 @@ const VoicePlayer = ({
   const [duration, setDuration] = useState(0);
   const [current, setCurrent] = useState(0);
   const bars = useMemo(() => barsFromSeed(src), [src]);
-
   const outgoing = variant === "outgoing";
 
   useEffect(() => {
@@ -91,62 +91,71 @@ const VoicePlayer = ({
 
   return (
     <div
-      className={`flex items-center gap-3 min-w-[200px] max-w-[260px] select-none ${
-        outgoing ? "text-primary-foreground" : "text-foreground"
+      className={`flex items-center gap-2.5 min-w-[210px] max-w-[270px] select-none ${
+        outgoing ? "text-white" : "text-foreground"
       }`}
     >
       <button
         type="button"
         onClick={() => void toggle()}
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-transform active:scale-95 ${
+        className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition active:scale-95 ${
           outgoing
-            ? "bg-white/25 hover:bg-white/35 text-white"
-            : "bg-primary/20 hover:bg-primary/30 text-primary"
+            ? "bg-white/20 hover:bg-white/30 text-white shadow-inner"
+            : "bg-primary/15 hover:bg-primary/25 text-primary"
         }`}
         aria-label={playing ? "Pause" : "Play"}
       >
-        {playing ? <Pause className="h-4 w-4 fill-current" /> : <Play className="h-4 w-4 fill-current ml-0.5" />}
+        {playing && (
+          <span
+            className={`absolute inset-0 rounded-full animate-ping opacity-30 ${
+              outgoing ? "bg-white" : "bg-primary"
+            }`}
+          />
+        )}
+        {playing ? (
+          <Pause className="h-[18px] w-[18px] fill-current relative" />
+        ) : (
+          <Play className="h-[18px] w-[18px] fill-current relative ml-0.5" />
+        )}
       </button>
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 pt-0.5">
         <button
           type="button"
-          className="flex items-end gap-[3px] h-8 w-full cursor-pointer"
+          className="flex items-center gap-[2.5px] h-9 w-full cursor-pointer"
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
-            const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-            seek(ratio);
+            seek(Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)));
           }}
-          aria-label="Seek"
         >
           {bars.map((h, i) => {
             const filled = i / bars.length <= progress;
             return (
               <span
                 key={i}
-                className={`flex-1 rounded-full transition-all duration-150 ${
+                className={`w-[3px] rounded-full transition-all duration-100 ${
                   filled
                     ? outgoing
                       ? "bg-white"
                       : "bg-primary"
                     : outgoing
-                      ? "bg-white/30"
-                      : "bg-foreground/20"
-                } ${playing && filled ? "animate-pulse" : ""}`}
+                      ? "bg-white/25"
+                      : "bg-white/15"
+                }`}
                 style={{
-                  height: `${Math.round(h * 100)}%`,
-                  minHeight: 4,
+                  height: `${Math.max(4, Math.round(h * 32))}px`,
+                  transform: playing && filled ? `scaleY(${1 + (i % 3) * 0.06})` : undefined,
                 }}
               />
             );
           })}
         </button>
         <div
-          className={`mt-1 text-[10px] tabular-nums tracking-wide ${
-            outgoing ? "text-white/70" : "text-muted-foreground"
+          className={`text-[10px] tabular-nums tracking-wide mt-0.5 ${
+            outgoing ? "text-white/65" : "text-white/40"
           }`}
         >
-          {formatTime(current)} / {formatTime(duration)}
+          {playing || current > 0 ? formatTime(current) : formatTime(duration)}
         </div>
       </div>
     </div>

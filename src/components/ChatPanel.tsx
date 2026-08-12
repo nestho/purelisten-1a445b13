@@ -9,6 +9,7 @@ import {
   Mic,
   FileText,
   ExternalLink,
+  Heart,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
@@ -23,6 +24,12 @@ type Msg = {
   media_mime?: string | null;
   media_name?: string | null;
   created_at: string;
+};
+
+type Meta = {
+  ip: string | null;
+  country: string | null;
+  userAgent: string | null;
 };
 
 function getVisitorKey() {
@@ -53,7 +60,6 @@ function detectMediaType(file: File): string {
 
 const MediaBubble = ({ m, outgoing }: { m: Msg; outgoing: boolean }) => {
   if (!m.media_url && !m.content) return null;
-
   const isVoice = m.media_type === "voice" || m.media_type === "audio";
 
   return (
@@ -63,32 +69,24 @@ const MediaBubble = ({ m, outgoing }: { m: Msg; outgoing: boolean }) => {
           <img
             src={m.media_url}
             alt={m.media_name || "image"}
-            className="max-h-64 rounded-xl object-cover max-w-full shadow-soft"
+            className="max-h-64 rounded-xl object-cover max-w-full"
             loading="lazy"
           />
         </a>
       )}
-
       {isVoice && m.media_url && (
         <VoicePlayer src={m.media_url} variant={outgoing ? "outgoing" : "incoming"} />
       )}
-
       {m.media_type === "video" && m.media_url && (
-        <video
-          controls
-          src={m.media_url}
-          className="max-h-64 rounded-xl max-w-full bg-black/40"
-          playsInline
-        />
+        <video controls src={m.media_url} className="max-h-64 rounded-xl max-w-full" playsInline />
       )}
-
       {m.media_type === "file" && m.media_url && (
         <a
           href={m.media_url}
           target="_blank"
           rel="noreferrer"
           className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm ${
-            outgoing ? "bg-white/15" : "bg-muted/80"
+            outgoing ? "bg-white/15" : "bg-white/5"
           }`}
         >
           <FileText className="h-4 w-4 shrink-0" />
@@ -96,26 +94,21 @@ const MediaBubble = ({ m, outgoing }: { m: Msg; outgoing: boolean }) => {
           <ExternalLink className="h-3.5 w-3.5 opacity-60 ml-auto" />
         </a>
       )}
-
       {m.media_type === "link" && m.media_url && (
         <a
           href={m.media_url}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1.5 underline underline-offset-2 break-all text-sm opacity-95"
+          className="inline-flex items-center gap-1.5 underline underline-offset-2 break-all text-sm"
         >
           <ExternalLink className="h-3.5 w-3.5 shrink-0" />
           {m.content && m.content !== m.media_url ? m.content : m.media_url}
         </a>
       )}
-
       {m.content && m.media_type !== "link" && (
         <p className="whitespace-pre-wrap break-words leading-relaxed">{m.content}</p>
       )}
-      {m.content && m.media_type === "text" && !m.media_url && (
-        <p className="whitespace-pre-wrap break-words leading-relaxed">{m.content}</p>
-      )}
-      {!m.media_type && m.content && (
+      {(!m.media_type || m.media_type === "text") && m.content && !m.media_url && (
         <p className="whitespace-pre-wrap break-words leading-relaxed">{m.content}</p>
       )}
     </div>
@@ -129,7 +122,9 @@ const ChatPanel = ({
   mode: "talk" | "listen";
   onClose: () => void;
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [step, setStep] = useState<"name" | "chat">("name");
+  const [name, setName] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -138,89 +133,115 @@ const ChatPanel = ({
   const [error, setError] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
   const [recordSecs, setRecordSecs] = useState(0);
+  const [meta, setMeta] = useState<Meta>({ ip: null, country: null, userAgent: null });
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recordTimerRef = useRef<number | null>(null);
   const isNewSession = useRef(true);
+  const visitorNameRef = useRef("");
 
   useEffect(() => {
-    let channel: ReturnType<typeof supabase.channel> | null = null;
-    let cancelled = false;
+    fetch("/api/session-meta")
+      .then((r) => r.json())
+      .then((d) =>
+        setMeta({
+          ip: d.ip || null,
+          country: d.country || null,
+          userAgent: d.userAgent || navigator.userAgent,
+        })
+      )
+      .catch(() =>
+        setMeta({
+          ip: null,
+          country: null,
+          userAgent: navigator.userAgent,
+        })
+      );
+  }, []);
 
-    (async () => {
-      try {
-        const visitorKey = getVisitorKey();
-        const { data: session, error: sErr } = await supabase
-          .from("chat_sessions" as never)
-          .insert({
-            visitor_key: visitorKey,
-            mode,
-            status: "open",
-          } as never)
-          .select("id")
-          .single();
+  const startChat = async (displayName: string) => {
+    const clean = displayName.trim().slice(0, 40);
+    if (!clean) return;
+    visitorNameRef.current = clean;
+    setError(null);
 
-        if (sErr) throw sErr;
-        const sid = (session as { id: string }).id;
-        if (cancelled) return;
-        setSessionId(sid);
+    try {
+      const visitorKey = getVisitorKey();
+      const { data: session, error: sErr } = await supabase
+        .from("chat_sessions" as never)
+        .insert({
+          visitor_key: visitorKey,
+          mode,
+          status: "open",
+          visitor_name: clean,
+          ip: meta.ip,
+          country: meta.country,
+          user_agent: meta.userAgent || navigator.userAgent,
+        } as never)
+        .select("id")
+        .single();
 
-        const welcome =
-          mode === "talk"
-            ? t(
-                "chat.welcomeTalk",
-                "You're connected. Send text, voice, photos, or video — a real person replies here."
-              )
-            : t(
-                "chat.welcomeListen",
-                "Thanks for being willing to listen. You can message the host with any media."
-              );
+      if (sErr) throw sErr;
+      const sid = (session as { id: string }).id;
+      setSessionId(sid);
+      setStep("chat");
 
-        setMessages([
+      const welcome =
+        i18n.language === "fa"
+          ? `${clean} عزیز، خوش اومدی. هرچی روی قلبته، اینجا می‌تونی بگی. من اینجام و با دقت گوش می‌دم.`
+          : `Welcome, ${clean}. Whatever is on your heart — you can say it here. I'm listening, without judgment.`;
+
+      setMessages([
+        {
+          id: "system-welcome",
+          role: "system",
+          content: welcome,
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+      const channel = supabase
+        .channel(`session-${sid}`)
+        .on(
+          "postgres_changes",
           {
-            id: "system-welcome",
-            role: "system",
-            content: welcome,
-            created_at: new Date().toISOString(),
+            event: "INSERT",
+            schema: "public",
+            table: "chat_messages",
+            filter: `session_id=eq.${sid}`,
           },
-        ]);
+          (payload) => {
+            const row = payload.new as Msg;
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === row.id)) return prev;
+              return [...prev, row];
+            });
+          }
+        )
+        .subscribe();
 
-        channel = supabase
-          .channel(`session-${sid}`)
-          .on(
-            "postgres_changes",
-            {
-              event: "INSERT",
-              schema: "public",
-              table: "chat_messages",
-              filter: `session_id=eq.${sid}`,
-            },
-            (payload) => {
-              const row = payload.new as Msg;
-              setMessages((prev) => {
-                if (prev.some((m) => m.id === row.id)) return prev;
-                return [...prev, row];
-              });
-            }
-          )
-          .subscribe();
+      setReady(true);
 
-        setReady(true);
-      } catch (e) {
-        console.error(e);
-        setError(t("chat.initError", "Could not start chat. Check database setup."));
-      }
-    })();
+      // cleanup handled on unmount via channel name — store on window weak map simplified:
+      (window as unknown as { __listenerChannel?: ReturnType<typeof supabase.channel> }).__listenerChannel =
+        channel;
+    } catch (e) {
+      console.error(e);
+      setError(t("chat.initError", "Could not start. Please try again."));
+    }
+  };
 
+  useEffect(() => {
     return () => {
-      cancelled = true;
-      if (channel) supabase.removeChannel(channel);
+      const ch = (window as unknown as { __listenerChannel?: ReturnType<typeof supabase.channel> })
+        .__listenerChannel;
+      if (ch) supabase.removeChannel(ch);
       mediaRecorderRef.current?.stop();
       if (recordTimerRef.current) window.clearInterval(recordTimerRef.current);
     };
-  }, [mode, t]);
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -311,6 +332,10 @@ const ChatPanel = ({
           mediaUrl: media_url,
           mediaMime: media_mime,
           mediaName: media_name,
+          visitorName: visitorNameRef.current,
+          ip: meta.ip,
+          country: meta.country,
+          userAgent: meta.userAgent,
         }),
       });
 
@@ -342,41 +367,101 @@ const ChatPanel = ({
         if (e.data.size) chunksRef.current.push(e.data);
       };
       recorder.onstop = async () => {
-        stream.getTracks().forEach((t) => t.stop());
+        stream.getTracks().forEach((tr) => tr.stop());
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        const file = new File([blob], `voice-${Date.now()}.webm`, {
-          type: "audio/webm",
-        });
+        const file = new File([blob], `voice-${Date.now()}.webm`, { type: "audio/webm" });
         await sendPayload({ file });
       };
       mediaRecorderRef.current = recorder;
       recorder.start();
       setRecording(true);
       setRecordSecs(0);
-      recordTimerRef.current = window.setInterval(
-        () => setRecordSecs((s) => s + 1),
-        1000
-      );
+      recordTimerRef.current = window.setInterval(() => setRecordSecs((s) => s + 1), 1000);
     } catch {
       setError(t("chat.micError", "Microphone permission denied."));
     }
   };
 
+  // ——— Name step (warm, minimal) ———
+  if (step === "name") {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-md p-4 sm:p-6">
+        <div className="w-full sm:max-w-md rounded-[1.75rem] bg-[#12141a] border border-white/8 shadow-2xl p-7 sm:p-8 space-y-6 animate-scale-in">
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="h-8 w-8 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="text-center space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-warm/20 ring-1 ring-primary/30">
+              <Heart className="h-6 w-6 text-primary" />
+            </div>
+            <h2 className="font-serif text-2xl sm:text-3xl text-white leading-snug">
+              {t("chat.askNameTitle", "Before we begin…")}
+            </h2>
+            <p className="text-sm text-white/55 leading-relaxed max-w-sm mx-auto">
+              {t(
+                "chat.askNameBody",
+                "What should we call you? Just a first name is enough. This space is private — no judgment, only listening."
+              )}
+            </p>
+          </div>
+
+          <form
+            className="space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void startChat(name);
+            }}
+          >
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t("chat.namePlaceholder", "Your name")}
+              maxLength={40}
+              autoFocus
+              className="h-12 rounded-2xl bg-white/6 border-white/10 text-white text-center text-base placeholder:text-white/30 focus-visible:ring-primary/40"
+            />
+            {error && <p className="text-xs text-red-400 text-center">{error}</p>}
+            <Button
+              type="submit"
+              disabled={!name.trim()}
+              className="w-full h-12 rounded-2xl bg-gradient-warm border-0 text-white font-medium shadow-soft hover:opacity-95"
+            >
+              {t("chat.enterChat", "I'm ready to talk")}
+            </Button>
+            <p className="text-[11px] text-white/30 text-center leading-relaxed">
+              {t(
+                "chat.namePrivacy",
+                "We only use your name to speak to you kindly. You can share as much or as little as you want."
+              )}
+            </p>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // ——— Chat ———
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/55 backdrop-blur-md p-0 sm:p-6">
       <div className="w-full sm:max-w-md h-[94svh] sm:h-[min(720px,92vh)] rounded-t-[1.75rem] sm:rounded-[1.75rem] bg-[#12141a]/95 border border-white/8 shadow-2xl flex flex-col overflow-hidden">
-        {/* Header */}
         <header className="flex items-center justify-between px-4 py-3.5 border-b border-white/6 bg-white/[0.02]">
           <div className="flex items-center gap-3">
             <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-warm shadow-glow">
-              <span className="text-sm font-semibold text-white">L</span>
+              <Heart className="h-4 w-4 text-white" />
               <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-hope ring-2 ring-[#12141a]" />
             </div>
             <div>
               <p className="font-semibold text-sm text-white/95">
-                {mode === "talk"
-                  ? t("chat.titleTalk", "Talk — someone is listening")
-                  : t("chat.titleListen", "Listen mode")}
+                {visitorNameRef.current
+                  ? t("chat.helloName", "Hi, {{name}}", { name: visitorNameRef.current })
+                  : t("chat.titleTalk", "Someone is listening")}
               </p>
               <p className="text-[11px] text-white/45 flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-hope animate-pulse" />
@@ -388,19 +473,17 @@ const ChatPanel = ({
             type="button"
             onClick={onClose}
             className="h-9 w-9 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/8 transition"
-            aria-label="Close"
           >
             <X className="h-5 w-5" />
           </button>
         </header>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-2.5 scroll-smooth">
+        <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-2.5">
           {messages.map((m) => {
             if (m.role === "system") {
               return (
-                <div key={m.id} className="flex justify-center py-2">
-                  <p className="text-[11px] text-white/40 text-center max-w-[85%] leading-relaxed px-3">
+                <div key={m.id} className="flex justify-center py-3 px-2">
+                  <p className="text-[12px] text-white/45 text-center max-w-[90%] leading-relaxed font-serif italic">
                     {m.content}
                   </p>
                 </div>
@@ -408,12 +491,9 @@ const ChatPanel = ({
             }
             const outgoing = m.role === "visitor";
             return (
-              <div
-                key={m.id}
-                className={`flex ${outgoing ? "justify-end" : "justify-start"} animate-fade-in`}
-              >
+              <div key={m.id} className={`flex ${outgoing ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[82%] rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-relaxed shadow-sm ${
+                  className={`max-w-[82%] rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-relaxed ${
                     outgoing
                       ? "bg-gradient-to-br from-[#f4865a] to-[#e86b3a] text-white rounded-br-md"
                       : "bg-[#1c1f28] text-white/90 border border-white/6 rounded-bl-md"
@@ -427,23 +507,18 @@ const ChatPanel = ({
           <div ref={bottomRef} />
         </div>
 
-        {error && (
-          <p className="px-4 text-[11px] text-red-400 text-center pb-1">{error}</p>
-        )}
+        {error && <p className="px-4 text-[11px] text-red-400 text-center pb-1">{error}</p>}
 
-        {/* Recording banner */}
         {recording && (
           <div className="mx-3 mb-1 flex items-center gap-2 rounded-full bg-red-500/15 border border-red-500/25 px-3 py-1.5">
             <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
             <span className="text-xs text-red-300 tabular-nums">
-              Recording {Math.floor(recordSecs / 60)}:
-              {(recordSecs % 60).toString().padStart(2, "0")}
+              {Math.floor(recordSecs / 60)}:{(recordSecs % 60).toString().padStart(2, "0")}
             </span>
             <span className="text-[11px] text-white/40 ml-auto">Tap mic to send</span>
           </div>
         )}
 
-        {/* Composer */}
         <form
           className="p-3 pt-2 border-t border-white/6 flex gap-1.5 items-center bg-[#0e1015]/80"
           onSubmit={(e) => {
@@ -466,43 +541,37 @@ const ChatPanel = ({
             type="button"
             disabled={!ready || sending}
             onClick={() => fileRef.current?.click()}
-            className="h-10 w-10 rounded-full flex items-center justify-center text-white/45 hover:text-white hover:bg-white/8 transition disabled:opacity-40"
-            aria-label="Attach"
+            className="h-10 w-10 rounded-full flex items-center justify-center text-white/45 hover:text-white hover:bg-white/8"
           >
-            <Paperclip className="h-4.5 w-4.5" />
+            <Paperclip className="h-4 w-4" />
           </button>
           <button
             type="button"
             disabled={!ready || sending}
             onClick={() => void toggleRecord()}
-            className={`h-10 w-10 rounded-full flex items-center justify-center transition disabled:opacity-40 ${
+            className={`h-10 w-10 rounded-full flex items-center justify-center ${
               recording
                 ? "bg-red-500 text-white shadow-lg shadow-red-500/30"
                 : "text-white/45 hover:text-white hover:bg-white/8"
             }`}
-            aria-label="Voice"
           >
-            <Mic className={`h-4.5 w-4.5 ${recording ? "animate-pulse" : ""}`} />
+            <Mic className={`h-4 w-4 ${recording ? "animate-pulse" : ""}`} />
           </button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={t("chat.placeholder", "Type a message…")}
+            placeholder={t("chat.placeholder", "Share what's on your mind…")}
             disabled={!ready || sending}
             maxLength={4000}
-            className="flex-1 h-11 rounded-full bg-white/6 border-white/8 text-white placeholder:text-white/30 focus-visible:ring-primary/40"
+            className="flex-1 h-11 rounded-full bg-white/6 border-white/8 text-white placeholder:text-white/30"
           />
           <Button
             type="submit"
             size="icon"
             disabled={!ready || sending || !input.trim()}
-            className="h-10 w-10 rounded-full bg-gradient-warm border-0 shadow-soft disabled:opacity-40"
+            className="h-10 w-10 rounded-full bg-gradient-warm border-0"
           >
-            {sending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
+            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </form>
       </div>
