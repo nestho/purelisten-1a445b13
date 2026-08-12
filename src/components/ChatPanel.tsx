@@ -7,7 +7,6 @@ import {
   Mic,
   FileText,
   ExternalLink,
-  Heart,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
@@ -57,16 +56,17 @@ function detectMediaType(file: File): string {
 }
 
 const fieldClass =
-  "w-full rounded-2xl border border-white/15 bg-[#1a1d26] px-4 text-[16px] leading-normal text-[#f3f0ea] placeholder:text-white/35 outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/25 caret-[#f4865a] disabled:opacity-50";
+  "w-full rounded-full border border-black/[0.06] bg-[#f5f5f7] px-4 text-[15px] text-[#1d1d1f] placeholder:text-[#86868b] outline-none transition focus:border-black/10 focus:ring-2 focus:ring-black/5 caret-[#1d1d1f] disabled:opacity-50";
 
 const MediaBubble = ({ m, outgoing }: { m: Msg; outgoing: boolean }) => {
   if (!m.media_url && !m.content) return null;
+
   const isVoice = m.media_type === "voice" || m.media_type === "audio";
 
   return (
     <div className="space-y-2">
       {m.media_type === "image" && m.media_url && (
-        <a href={m.media_url} target="_blank" rel="noreferrer" className="block">
+        <a href={m.media_url} target="_blank" rel="noreferrer" className="block -mx-1">
           <img
             src={m.media_url}
             alt={m.media_name || "image"}
@@ -75,42 +75,45 @@ const MediaBubble = ({ m, outgoing }: { m: Msg; outgoing: boolean }) => {
           />
         </a>
       )}
+
       {isVoice && m.media_url && (
         <VoicePlayer src={m.media_url} variant={outgoing ? "outgoing" : "incoming"} />
       )}
+
       {m.media_type === "video" && m.media_url && (
         <video controls src={m.media_url} className="max-h-64 rounded-xl max-w-full" playsInline />
       )}
+
       {m.media_type === "file" && m.media_url && (
         <a
           href={m.media_url}
           target="_blank"
           rel="noreferrer"
           className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm ${
-            outgoing ? "bg-white/15" : "bg-white/5"
+            outgoing ? "bg-white/20" : "bg-black/[0.04]"
           }`}
         >
-          <FileText className="h-4 w-4 shrink-0" />
+          <FileText className="h-4 w-4 shrink-0 opacity-70" />
           <span className="truncate">{m.media_name || "File"}</span>
-          <ExternalLink className="h-3.5 w-3.5 opacity-60 ml-auto" />
+          <ExternalLink className="h-3.5 w-3.5 opacity-50 ml-auto" />
         </a>
       )}
+
       {m.media_type === "link" && m.media_url && (
         <a
           href={m.media_url}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1.5 underline underline-offset-2 break-all text-sm"
+          className="inline-flex items-center gap-1.5 underline underline-offset-2 break-all text-[14px] opacity-90"
         >
           <ExternalLink className="h-3.5 w-3.5 shrink-0" />
           {m.content && m.content !== m.media_url ? m.content : m.media_url}
         </a>
       )}
+
+      {/* Single text render only — never duplicate */}
       {m.content && m.media_type !== "link" && (
-        <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">{m.content}</p>
-      )}
-      {(!m.media_type || m.media_type === "text") && m.content && !m.media_url && (
-        <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">{m.content}</p>
+        <p className="whitespace-pre-wrap break-words text-[15px] leading-[1.45]">{m.content}</p>
       )}
     </div>
   );
@@ -137,12 +140,15 @@ const ChatPanel = ({
   const [recordSecs, setRecordSecs] = useState(0);
   const [meta, setMeta] = useState<Meta>({ ip: null, country: null, userAgent: null });
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recordTimerRef = useRef<number | null>(null);
   const isNewSession = useRef(true);
   const visitorNameRef = useRef("");
+  const seenIds = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     fetch("/api/session-meta")
@@ -162,6 +168,26 @@ const ChatPanel = ({
         })
       );
   }, []);
+
+  useEffect(() => {
+    if (step === "name") {
+      const tmr = window.setTimeout(() => nameRef.current?.focus(), 80);
+      return () => clearTimeout(tmr);
+    }
+    if (step === "chat" && ready) {
+      const tmr = window.setTimeout(() => inputRef.current?.focus(), 80);
+      return () => clearTimeout(tmr);
+    }
+  }, [step, ready]);
+
+  const addMessage = (row: Msg) => {
+    if (seenIds.current.has(row.id)) return;
+    seenIds.current.add(row.id);
+    setMessages((prev) => {
+      if (prev.some((m) => m.id === row.id)) return prev;
+      return [...prev, row];
+    });
+  };
 
   const startChat = async (displayName: string) => {
     const clean = displayName.trim().slice(0, 40);
@@ -196,6 +222,7 @@ const ChatPanel = ({
           ? `${clean} عزیز، خوش اومدی. هرچی روی قلبته، اینجا می‌تونی بگی. من اینجام و با دقت گوش می‌دم.`
           : `Welcome, ${clean}. Whatever is on your heart — you can say it here. I'm listening, without judgment.`;
 
+      seenIds.current.add("system-welcome");
       setMessages([
         {
           id: "system-welcome",
@@ -216,11 +243,7 @@ const ChatPanel = ({
             filter: `session_id=eq.${sid}`,
           },
           (payload) => {
-            const row = payload.new as Msg;
-            setMessages((prev) => {
-              if (prev.some((m) => m.id === row.id)) return prev;
-              return [...prev, row];
-            });
+            addMessage(payload.new as Msg);
           }
         )
         .subscribe();
@@ -270,6 +293,10 @@ const ChatPanel = ({
     setSending(true);
     setError(null);
 
+    // Clear input immediately for calm UX; refocus after
+    setInput("");
+    requestAnimationFrame(() => inputRef.current?.focus());
+
     try {
       let media_url: string | null = null;
       let media_type: string | null = text && !opts.file ? "text" : null;
@@ -303,27 +330,22 @@ const ChatPanel = ({
       if (mErr) throw mErr;
       const messageId = (data as { id: string }).id;
 
-      setMessages((prev) => {
-        if (prev.some((m) => m.id === messageId)) return prev;
-        return [
-          ...prev,
-          {
-            id: messageId,
-            role: "visitor",
-            content: text || null,
-            media_type,
-            media_url,
-            media_mime,
-            media_name,
-            created_at: new Date().toISOString(),
-          },
-        ];
+      // Optimistic once — realtime deduped by seenIds
+      addMessage({
+        id: messageId,
+        role: "visitor",
+        content: text || null,
+        media_type,
+        media_url,
+        media_mime,
+        media_name,
+        created_at: new Date().toISOString(),
       });
 
       const notifyNew = isNewSession.current;
       isNewSession.current = false;
 
-      await fetch("/api/send-to-telegram", {
+      void fetch("/api/send-to-telegram", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -341,13 +363,12 @@ const ChatPanel = ({
           userAgent: meta.userAgent,
         }),
       });
-
-      setInput("");
     } catch (e) {
       console.error(e);
       setError(t("chat.sendError", "Could not send. Try again."));
     } finally {
       setSending(false);
+      requestAnimationFrame(() => inputRef.current?.focus());
     }
   };
 
@@ -385,29 +406,30 @@ const ChatPanel = ({
     }
   };
 
+  // ——— Name ———
   if (step === "name") {
     return (
-      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/65 backdrop-blur-md p-4 sm:p-6">
-        <div className="w-full sm:max-w-md rounded-[1.75rem] bg-[#14161e] border border-white/10 shadow-2xl p-7 sm:p-8 space-y-6">
-          <div className="flex justify-end -mt-1 -mr-1">
+      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xl p-4 sm:p-6">
+        <div className="w-full sm:max-w-[400px] rounded-[24px] bg-white shadow-2xl shadow-black/20 p-8 space-y-7">
+          <div className="flex justify-end -mt-2 -mr-2">
             <button
               type="button"
               onClick={onClose}
-              className="h-9 w-9 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10"
+              className="h-8 w-8 rounded-full flex items-center justify-center text-[#86868b] hover:bg-black/[0.05] hover:text-[#1d1d1f] transition"
               aria-label="Close"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
 
-          <div className="text-center space-y-4">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#f4865a]/15 ring-1 ring-[#f4865a]/35">
-              <Heart className="h-6 w-6 text-[#f4865a]" />
+          <div className="text-center space-y-3">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f5f7]">
+              <span className="text-xl">💬</span>
             </div>
-            <h2 className="font-serif text-[1.75rem] sm:text-[2rem] text-[#f5f2ec] leading-snug tracking-tight">
+            <h2 className="text-[28px] font-semibold tracking-tight text-[#1d1d1f] leading-tight">
               {t("chat.askNameTitle", "Before we begin…")}
             </h2>
-            <p className="text-[15px] text-white/60 leading-relaxed max-w-sm mx-auto">
+            <p className="text-[15px] text-[#6e6e73] leading-relaxed max-w-[300px] mx-auto">
               {t(
                 "chat.askNameBody",
                 "What should we call you? Just a first name is enough. This space is private — no judgment, only listening."
@@ -416,46 +438,40 @@ const ChatPanel = ({
           </div>
 
           <form
-            className="space-y-4"
+            className="space-y-3"
             onSubmit={(e) => {
               e.preventDefault();
               void startChat(name);
             }}
           >
             <input
+              ref={nameRef}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t("chat.namePlaceholder", "Your name")}
               maxLength={40}
-              autoFocus
               autoComplete="given-name"
               spellCheck={false}
-              className={`${fieldClass} h-14 text-center text-[17px] font-medium`}
-              style={{
-                WebkitTextFillColor: "#f3f0ea",
-                color: "#f3f0ea",
-                backgroundColor: "#1a1d26",
-              }}
+              className={`${fieldClass} h-12 text-center text-[16px] font-medium`}
             />
-            {error && <p className="text-sm text-red-400 text-center">{error}</p>}
+            {error && <p className="text-sm text-red-500 text-center">{error}</p>}
             <button
               type="submit"
               disabled={!name.trim() || starting}
-              className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#f4865a] to-[#e86b3a] text-white text-[16px] font-semibold shadow-lg shadow-[#e86b3a]/25 hover:opacity-95 disabled:opacity-40 transition"
+              className="w-full h-12 rounded-full bg-[#1d1d1f] text-white text-[15px] font-medium hover:bg-black disabled:opacity-30 transition active:scale-[0.99]"
             >
               {starting ? (
                 <span className="inline-flex items-center gap-2 justify-center">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  …
                 </span>
               ) : (
                 t("chat.enterChat", "I'm ready to talk")
               )}
             </button>
-            <p className="text-[12px] text-white/40 text-center leading-relaxed px-2">
+            <p className="text-[12px] text-[#86868b] text-center leading-relaxed pt-1">
               {t(
                 "chat.namePrivacy",
-                "We only use your name to speak to you kindly. You can share as much or as little as you want."
+                "We only use your name to speak to you kindly."
               )}
             </p>
           </form>
@@ -464,42 +480,44 @@ const ChatPanel = ({
     );
   }
 
+  // ——— Chat ———
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-md p-0 sm:p-6">
-      <div className="w-full sm:max-w-md h-[94svh] sm:h-[min(720px,92vh)] rounded-t-[1.75rem] sm:rounded-[1.75rem] bg-[#12141a] border border-white/10 shadow-2xl flex flex-col overflow-hidden">
-        <header className="flex items-center justify-between px-4 py-3.5 border-b border-white/8 bg-[#161922]">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f4865a] to-[#e86b3a]">
-              <Heart className="h-4 w-4 text-white" />
-              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[#6bcf8e] ring-2 ring-[#12141a]" />
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xl p-0 sm:p-6">
+      <div className="w-full sm:max-w-[400px] h-[94svh] sm:h-[min(680px,90vh)] rounded-t-[24px] sm:rounded-[24px] bg-white shadow-2xl shadow-black/20 flex flex-col overflow-hidden">
+        {/* Header — Apple minimal */}
+        <header className="flex items-center justify-between px-4 h-[56px] border-b border-black/[0.06] shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1d1d1f]">
+              <span className="text-white text-sm">✦</span>
+              <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#34c759] ring-2 ring-white" />
             </div>
             <div className="min-w-0">
-              <p className="font-semibold text-[15px] text-[#f5f2ec] truncate">
+              <p className="font-semibold text-[14px] text-[#1d1d1f] truncate leading-tight">
                 {visitorNameRef.current
                   ? t("chat.helloName", "Hi, {{name}}", { name: visitorNameRef.current })
-                  : t("chat.titleTalk", "Someone is listening")}
+                  : t("chat.titleTalk", "Listener")}
               </p>
-              <p className="text-[12px] text-white/50 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#6bcf8e] animate-pulse" />
-                {t("chat.subtitle", "Live · private · human")}
+              <p className="text-[11px] text-[#86868b] leading-tight">
+                {t("chat.subtitle", "Private · live · human")}
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="h-10 w-10 rounded-full flex items-center justify-center text-white/55 hover:text-white hover:bg-white/10"
+            className="h-8 w-8 rounded-full flex items-center justify-center text-[#86868b] hover:bg-black/[0.05] hover:text-[#1d1d1f] transition"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-3">
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5 bg-[#fbfbfd]">
           {messages.map((m) => {
             if (m.role === "system") {
               return (
-                <div key={m.id} className="flex justify-center py-3 px-3">
-                  <p className="text-[13px] text-white/50 text-center max-w-[92%] leading-relaxed font-serif italic">
+                <div key={m.id} className="flex justify-center py-4 px-2">
+                  <p className="text-[13px] text-[#86868b] text-center max-w-[90%] leading-relaxed">
                     {m.content}
                   </p>
                 </div>
@@ -509,10 +527,10 @@ const ChatPanel = ({
             return (
               <div key={m.id} className={`flex ${outgoing ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[84%] rounded-2xl px-4 py-2.5 ${
+                  className={`max-w-[78%] rounded-[18px] px-3.5 py-2 ${
                     outgoing
-                      ? "bg-gradient-to-br from-[#f4865a] to-[#e05a2e] text-white rounded-br-md"
-                      : "bg-[#1c1f28] text-[#f0ede6] border border-white/10 rounded-bl-md"
+                      ? "bg-[#1d1d1f] text-white rounded-br-[6px]"
+                      : "bg-white text-[#1d1d1f] border border-black/[0.06] rounded-bl-[6px] shadow-sm shadow-black/[0.03]"
                   }`}
                 >
                   <MediaBubble m={m} outgoing={outgoing} />
@@ -523,20 +541,23 @@ const ChatPanel = ({
           <div ref={bottomRef} />
         </div>
 
-        {error && <p className="px-4 text-sm text-red-400 text-center pb-1">{error}</p>}
+        {error && (
+          <p className="px-4 text-[12px] text-red-500 text-center py-1">{error}</p>
+        )}
 
         {recording && (
-          <div className="mx-3 mb-1 flex items-center gap-2 rounded-full bg-red-500/15 border border-red-500/30 px-3 py-2">
+          <div className="mx-4 mb-1 flex items-center gap-2 rounded-full bg-red-50 border border-red-100 px-3 py-1.5">
             <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-sm text-red-300 tabular-nums">
+            <span className="text-[12px] text-red-600 tabular-nums font-medium">
               {Math.floor(recordSecs / 60)}:{(recordSecs % 60).toString().padStart(2, "0")}
             </span>
-            <span className="text-xs text-white/45 ml-auto">Tap mic to send</span>
+            <span className="text-[11px] text-[#86868b] ml-auto">Tap mic to send</span>
           </div>
         )}
 
+        {/* Composer */}
         <form
-          className="p-3 pt-2 border-t border-white/8 flex gap-1.5 items-center bg-[#0e1015]"
+          className="px-3 py-3 border-t border-black/[0.06] flex gap-1.5 items-center bg-white shrink-0"
           onSubmit={(e) => {
             e.preventDefault();
             void sendPayload({ text: input });
@@ -557,41 +578,37 @@ const ChatPanel = ({
             type="button"
             disabled={!ready || sending}
             onClick={() => fileRef.current?.click()}
-            className="h-11 w-11 rounded-full flex items-center justify-center text-white/55 hover:text-white hover:bg-white/10 disabled:opacity-40"
+            className="h-9 w-9 rounded-full flex items-center justify-center text-[#86868b] hover:bg-black/[0.04] hover:text-[#1d1d1f] disabled:opacity-30 transition"
           >
-            <Paperclip className="h-5 w-5" />
+            <Paperclip className="h-4 w-4" />
           </button>
           <button
             type="button"
             disabled={!ready || sending}
             onClick={() => void toggleRecord()}
-            className={`h-11 w-11 rounded-full flex items-center justify-center ${
+            className={`h-9 w-9 rounded-full flex items-center justify-center transition ${
               recording
-                ? "bg-red-500 text-white shadow-lg shadow-red-500/30"
-                : "text-white/55 hover:text-white hover:bg-white/10"
+                ? "bg-red-500 text-white"
+                : "text-[#86868b] hover:bg-black/[0.04] hover:text-[#1d1d1f]"
             }`}
           >
-            <Mic className={`h-5 w-5 ${recording ? "animate-pulse" : ""}`} />
+            <Mic className={`h-4 w-4 ${recording ? "animate-pulse" : ""}`} />
           </button>
           <input
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={t("chat.placeholder", "Share what's on your mind…")}
+            placeholder={t("chat.placeholder", "Type a message…")}
             disabled={!ready || sending}
             maxLength={4000}
-            className={`${fieldClass} flex-1 h-12 px-4 text-[15px]`}
-            style={{
-              WebkitTextFillColor: "#f3f0ea",
-              color: "#f3f0ea",
-              backgroundColor: "#1a1d26",
-            }}
+            className={`${fieldClass} flex-1 h-10`}
           />
           <button
             type="submit"
             disabled={!ready || sending || !input.trim()}
-            className="h-11 w-11 rounded-full flex items-center justify-center bg-gradient-to-br from-[#f4865a] to-[#e86b3a] text-white disabled:opacity-40 shadow-md shadow-[#e86b3a]/20"
+            className="h-9 w-9 rounded-full flex items-center justify-center bg-[#1d1d1f] text-white disabled:opacity-20 transition active:scale-95"
           >
-            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
           </button>
         </form>
       </div>

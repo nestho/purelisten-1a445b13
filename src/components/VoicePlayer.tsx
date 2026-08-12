@@ -8,16 +8,15 @@ function formatTime(sec: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-function barsFromSeed(seed: string, count = 32) {
+function barsFromSeed(seed: string, count = 28) {
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
   const out: number[] = [];
   for (let i = 0; i < count; i++) {
     h = (h * 1664525 + 1013904223) >>> 0;
     const n = (h % 1000) / 1000;
-    // smoother RN-like envelope
     const envelope = Math.sin((i / count) * Math.PI) * 0.35 + 0.65;
-    out.push((0.18 + n * 0.82) * envelope);
+    out.push((0.2 + n * 0.8) * envelope);
   }
   return out;
 }
@@ -90,39 +89,28 @@ const VoicePlayer = ({
   };
 
   return (
-    <div
-      className={`flex items-center gap-2.5 min-w-[210px] max-w-[270px] select-none ${
-        outgoing ? "text-white" : "text-foreground"
-      }`}
-    >
+    <div className="flex items-center gap-2.5 min-w-[200px] max-w-[250px] select-none">
       <button
         type="button"
         onClick={() => void toggle()}
-        className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition active:scale-95 ${
+        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition active:scale-95 ${
           outgoing
-            ? "bg-white/20 hover:bg-white/30 text-white shadow-inner"
-            : "bg-primary/15 hover:bg-primary/25 text-primary"
+            ? "bg-white/20 text-white hover:bg-white/30"
+            : "bg-[#1d1d1f] text-white hover:bg-black"
         }`}
         aria-label={playing ? "Pause" : "Play"}
       >
-        {playing && (
-          <span
-            className={`absolute inset-0 rounded-full animate-ping opacity-30 ${
-              outgoing ? "bg-white" : "bg-primary"
-            }`}
-          />
-        )}
         {playing ? (
-          <Pause className="h-[18px] w-[18px] fill-current relative" />
+          <Pause className="h-3.5 w-3.5 fill-current" />
         ) : (
-          <Play className="h-[18px] w-[18px] fill-current relative ml-0.5" />
+          <Play className="h-3.5 w-3.5 fill-current ml-0.5" />
         )}
       </button>
 
-      <div className="flex-1 min-w-0 pt-0.5">
+      <div className="flex-1 min-w-0">
         <button
           type="button"
-          className="flex items-center gap-[2.5px] h-9 w-full cursor-pointer"
+          className="flex items-center gap-[2px] h-7 w-full cursor-pointer"
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
             seek(Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)));
@@ -133,26 +121,23 @@ const VoicePlayer = ({
             return (
               <span
                 key={i}
-                className={`w-[3px] rounded-full transition-all duration-100 ${
+                className={`w-[2.5px] rounded-full transition-colors ${
                   filled
                     ? outgoing
                       ? "bg-white"
-                      : "bg-primary"
+                      : "bg-[#1d1d1f]"
                     : outgoing
-                      ? "bg-white/25"
-                      : "bg-white/15"
+                      ? "bg-white/30"
+                      : "bg-black/15"
                 }`}
-                style={{
-                  height: `${Math.max(4, Math.round(h * 32))}px`,
-                  transform: playing && filled ? `scaleY(${1 + (i % 3) * 0.06})` : undefined,
-                }}
+                style={{ height: `${Math.max(3, Math.round(h * 26))}px` }}
               />
             );
           })}
         </button>
         <div
-          className={`text-[10px] tabular-nums tracking-wide mt-0.5 ${
-            outgoing ? "text-white/65" : "text-white/40"
+          className={`text-[10px] tabular-nums mt-0.5 ${
+            outgoing ? "text-white/60" : "text-[#86868b]"
           }`}
         >
           {playing || current > 0 ? formatTime(current) : formatTime(duration)}
