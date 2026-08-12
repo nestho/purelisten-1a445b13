@@ -1,9 +1,16 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-/**
- * Forwards visitor message to Telegram and marks this session as the active one.
- * Env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
- */
+type Body = {
+  sessionId?: string;
+  messageId?: string;
+  content?: string;
+  isNewSession?: boolean;
+  mediaType?: string | null;
+  mediaUrl?: string | null;
+  mediaMime?: string | null;
+  mediaName?: string | null;
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -18,21 +25,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: "Telegram not configured" });
   }
 
-  const { sessionId, messageId, content, isNewSession } = req.body as {
-    sessionId?: string;
-    messageId?: string;
-    content?: string;
-    isNewSession?: boolean;
-  };
+  const {
+    sessionId,
+    messageId,
+    content,
+    isNewSession,
+    mediaType,
+    mediaUrl,
+    mediaName,
+  } = req.body as Body;
 
-  if (!sessionId || !content || typeof content !== "string") {
-    return res.status(400).json({ error: "sessionId and content required" });
+  if (!sessionId) {
+    return res.status(400).json({ error: "sessionId required" });
   }
 
-  const text = content.trim().slice(0, 4000);
-  if (!text) return res.status(400).json({ error: "Empty message" });
+  const text = (content || "").trim().slice(0, 4000);
+  if (!text && !mediaUrl) {
+    return res.status(400).json({ error: "content or media required" });
+  }
 
-  // Mark this session as most recently active (so plain Telegram replies go here)
   if (supabaseUrl && serviceKey) {
     await fetch(`${supabaseUrl}/rest/v1/chat_sessions?id=eq.${sessionId}`, {
       method: "PATCH",
@@ -47,34 +58,67 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const shortId = sessionId.slice(0, 8);
-  const header = isNewSession
-    ? `🆕 New talk session  #${shortId}\n\n`
+  const captionPrefix = isNewSession
+    ? `🆕 New talk  #${shortId}\n`
     : `💬 #${shortId}\n`;
-  const body = `${header}👤 Visitor:\n${text}\n\n✍️ Just type your reply here — it goes to this person automatically.`;
+  const caption =
+    `${captionPrefix}${text ? `👤 ${text}` : "👤 (media)"}\n\n✍️ Type here to reply — auto-sent to this person.`.slice(
+      0,
+      1024
+    );
 
   try {
-    const tgRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: body,
-        disable_web_page_preview: true,
-      }),
-    });
+    let tgData: { ok: boolean; result?: { message_id: number }; description?: string };
 
-    const tgData = (await tgRes.json()) as {
-      ok: boolean;
-      result?: { message_id: number };
-      description?: string;
-    };
+    if (mediaUrl && mediaType === "image") {
+      tgData = await tgApi(token, "sendPhoto", {
+        chat_id: chatId,
+        photo: mediaUrl,
+        caption,
+      });
+    } else if (mediaUrl && (mediaType === "voice" || mediaType === "audio")) {
+      const method = mediaType === "voice" ? "sendVoice" : "sendAudio";
+      const field = mediaType === "voice" ? "voice" : "audio";
+      tgData = await tgApi(token, method, {
+        chat_id: chatId,
+        [field]: mediaUrl,
+        caption,
+      });
+    } else if (mediaUrl && mediaType === "video") {
+      tgData = await tgApi(token, "sendVideo", {
+        chat_id: chatId,
+        video: mediaUrl,
+        caption,
+      });
+    } else if (mediaUrl) {
+      tgData = await tgApi(token, "sendDocument", {
+        chat_id: chatId,
+        document: mediaUrl,
+        caption: caption + (mediaName ? `\n📎 ${mediaName}` : ""),
+      });
+    } else {
+      tgData = await tgApi(token, "sendMessage", {
+        chat_id: chatId,
+        text: caption,
+        disable_web_page_preview: false,
+      });
+    }
 
     if (!tgData.ok) {
-      return res.status(502).json({ error: tgData.description || "Telegram error" });
+      // Fallback: send as link text if Telegram can't fetch the URL
+      if (mediaUrl) {
+        tgData = await tgApi(token, "sendMessage", {
+          chat_id: chatId,
+          text: `${caption}\n\n🔗 ${mediaUrl}`,
+          disable_web_page_preview: false,
+        });
+      }
+      if (!tgData.ok) {
+        return res.status(502).json({ error: tgData.description || "Telegram error" });
+      }
     }
 
     const telegramMessageId = tgData.result?.message_id;
-
     if (telegramMessageId && messageId && supabaseUrl && serviceKey) {
       await fetch(`${supabaseUrl}/rest/v1/chat_messages?id=eq.${messageId}`, {
         method: "PATCH",
@@ -93,4 +137,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error(e);
     return res.status(500).json({ error: "Failed to notify Telegram" });
   }
+}
+
+async function tgApi(token: string, method: string, body: Record<string, unknown>) {
+  const r = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  return (await r.json()) as {
+    ok: boolean;
+    result?: { message_id: number };
+    description?: string;
+  };
 }
