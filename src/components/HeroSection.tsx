@@ -11,17 +11,15 @@ const HeroSection = () => {
 
   const scrollToWaitlist = () => {
     const el = document.getElementById("waitlist");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-hero overflow-hidden">
-      <div className="absolute inset-0 opacity-10">
+    <section className="relative min-h-[100svh] flex items-center justify-center bg-gradient-hero overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.07]">
         <img
           src={heroImage}
-          alt="Two people sharing a calm, empathetic conversation"
+          alt=""
           className="w-full h-full object-cover"
           loading="eager"
         />
@@ -29,30 +27,32 @@ const HeroSection = () => {
 
       <AmbientBackground />
 
-      <div className="container mx-auto px-4 py-24 relative z-10">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <div className="inline-flex items-center gap-2 glass-card px-5 py-2.5 rounded-full shadow-soft animate-fade-in">
-            <span className="inline-flex h-2 w-2 rounded-full bg-hope animate-pulse-soft" aria-hidden />
-            <p className="text-sm font-semibold text-foreground/80">{t("hero.badge")}</p>
+      <div className="container mx-auto px-4 py-20 relative z-10">
+        <div className="max-w-3xl mx-auto text-center space-y-7">
+          <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full shadow-soft animate-fade-in">
+            <span className="live-dot" aria-hidden />
+            <p className="text-sm font-semibold text-foreground/85">{t("hero.badge")}</p>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] animate-fade-in">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight animate-fade-in" style={{ animationDelay: "80ms" }}>
             {t("hero.title")}
             <br />
             <span className="text-gradient-warm">{t("hero.titleHighlight")}</span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-fade-in">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: "160ms" }}>
             {t("hero.subtitle")}
           </p>
 
-          <ComfortTicker />
+          <div className="animate-fade-in" style={{ animationDelay: "220ms" }}>
+            <ComfortTicker />
+          </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 mb-12">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-2 animate-fade-in" style={{ animationDelay: "280ms" }}>
             <Button
               variant="hero"
               size="lg"
-              className="w-full sm:w-auto min-w-[240px] hover-lift"
+              className="w-full sm:w-auto min-w-[220px] hover-lift"
               onClick={scrollToWaitlist}
             >
               <MessageCircleHeart className="w-5 h-5" />
@@ -62,7 +62,7 @@ const HeroSection = () => {
             <Button
               variant="calm"
               size="lg"
-              className="w-full sm:w-auto min-w-[240px] hover-lift"
+              className="w-full sm:w-auto min-w-[220px] hover-lift"
               onClick={scrollToWaitlist}
             >
               <Ear className="w-5 h-5" />
@@ -70,18 +70,18 @@ const HeroSection = () => {
             </Button>
           </div>
 
-          <div id="waitlist">
+          <div id="waitlist" className="pt-6 animate-scale-in" style={{ animationDelay: "360ms" }}>
             <LeadCapture />
           </div>
 
-          <p className="text-sm text-muted-foreground pt-8 flex items-center justify-center gap-2">
-            <ShieldCheck className="w-4 h-4" aria-hidden />
+          <p className="text-sm text-muted-foreground pt-4 flex items-center justify-center gap-2 animate-fade-in" style={{ animationDelay: "420ms" }}>
+            <ShieldCheck className="w-4 h-4 text-hope" aria-hidden />
             {t("hero.footer")}
           </p>
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-background to-transparent" />
     </section>
   );
 };

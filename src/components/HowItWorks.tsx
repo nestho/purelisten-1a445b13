@@ -10,54 +10,51 @@ const HowItWorks = () => {
       icon: MessageSquare,
       titleKey: "howItWorks.steps.share.title",
       descriptionKey: "howItWorks.steps.share.description",
-      gradient: "from-primary/10 to-primary/5"
     },
     {
       icon: HeartHandshake,
       titleKey: "howItWorks.steps.connect.title",
       descriptionKey: "howItWorks.steps.connect.description",
-      gradient: "from-secondary/10 to-secondary/5"
     },
     {
       icon: Sparkles,
       titleKey: "howItWorks.steps.choose.title",
       descriptionKey: "howItWorks.steps.choose.description",
-      gradient: "from-accent/20 to-accent/5"
-    }
+    },
   ];
-  
+
   return (
-    <section className="py-24 px-4">
+    <section className="py-20 px-4">
       <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-16 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold">
-            {t('howItWorks.title')} <span className="bg-gradient-warm bg-clip-text text-transparent">{t('howItWorks.titleHighlight')}</span> {t('howItWorks.titleEnd')}
+        <div className="text-center mb-14 space-y-3">
+          <h2 className="text-3xl md:text-5xl font-bold">
+            {t("howItWorks.title")}{" "}
+            <span className="text-gradient-warm">{t("howItWorks.titleHighlight")}</span>{" "}
+            {t("howItWorks.titleEnd")}
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            {t('howItWorks.subtitle')}
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            {t("howItWorks.subtitle")}
           </p>
         </div>
-        
-        <div className="grid md:grid-cols-3 gap-8">
+
+        <div className="grid md:grid-cols-3 gap-6">
           {steps.map((step, index) => (
-            <Card 
+            <Card
               key={index}
-              className={`relative p-8 hover:shadow-card transition-all duration-300 hover:-translate-y-2 bg-gradient-to-br ${step.gradient}`}
+              className="relative p-7 glass-card hover:shadow-glow transition-all duration-500 hover:-translate-y-2 group"
             >
-              <div className="absolute top-6 right-6 text-6xl font-bold text-muted/10">
+              <div className="absolute top-5 right-5 text-5xl font-bold text-foreground/[0.04] group-hover:text-primary/10 transition-colors">
                 {index + 1}
               </div>
-              
+
               <div className="relative space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-warm flex items-center justify-center shadow-soft">
-                  <step.icon className="w-8 h-8 text-primary-foreground" />
+                <div className="w-14 h-14 rounded-2xl bg-gradient-warm flex items-center justify-center shadow-soft group-hover:scale-110 transition-transform duration-300">
+                  <step.icon className="w-7 h-7 text-primary-foreground" />
                 </div>
-                
-                <h3 className="text-2xl font-semibold">
-                  {t(step.titleKey)}
-                </h3>
-                
-                <p className="text-muted-foreground leading-relaxed">
+
+                <h3 className="text-xl font-semibold">{t(step.titleKey)}</h3>
+
+                <p className="text-muted-foreground leading-relaxed text-sm">
                   {t(step.descriptionKey)}
                 </p>
               </div>

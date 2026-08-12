@@ -79,7 +79,8 @@
   "live": {
     "building": "We're actively building the first version",
     "waitlistOpen": "Waitlist open",
-    "honest": "No fake numbers — just real progress"
+    "honest": "No fake numbers — just real progress",
+    "count": "{{count}} people waiting"
   },
   "breathe": {
     "title": "Feeling overwhelmed?",
