@@ -1,9 +1,9 @@
 {
   "hero": {
-    "badge": "Coming soon — join the waitlist",
+    "badge": "Live · anonymous · human",
     "title": "Sometimes, all you need",
     "titleHighlight": "someone to listen",
-    "subtitle": "Listener is a free, anonymous space for empathetic listening. We're building the first version now — join the waitlist and be among the first to try it.",
+    "subtitle": "A free, anonymous space. Share what's on your mind — a real person listens and replies here.",
     "talkButton": "I Need to Talk",
     "listenButton": "I Want to Listen",
     "footer": "Free, anonymous, and judgment-free"
@@ -11,61 +11,55 @@
   "howItWorks": {
     "title": "How",
     "titleHighlight": "Listener",
-    "titleEnd": "Will Work",
-    "subtitle": "A simple, compassionate approach to human connection",
+    "titleEnd": "Works",
+    "subtitle": "Simple, human, private",
     "steps": {
       "share": {
         "title": "Share Your Thoughts",
-        "description": "Express what's on your mind in a safe, judgment-free space. Your feelings are valid and heard."
+        "description": "Open a private chat and write freely. No account required."
       },
       "connect": {
-        "title": "Connect with Empathy",
-        "description": "Be matched with someone who's here to listen with compassion and understanding."
+        "title": "A Human Listens",
+        "description": "Your message reaches a real person who is here to listen with care."
       },
       "choose": {
-        "title": "Choose Your Path",
-        "description": "Decide if you want supportive responses or just a caring presence to listen."
+        "title": "Talk or Listen",
+        "description": "Need support, or ready to hold space for someone else — both matter."
       }
     }
   },
   "features": {
     "title": "Why",
     "titleHighlight": "Listener",
-    "subtitle": "Built on the foundation of empathy and human connection",
+    "subtitle": "Built on empathy and real connection",
     "items": {
       "private": {
         "title": "Private & Anonymous",
-        "description": "Your conversations stay confidential. Share freely without worrying about judgment."
+        "description": "No public profile. Share only what you want."
       },
       "available": {
-        "title": "Available When You Need It",
-        "description": "Support shouldn't only exist during office hours. We're building for real life."
+        "title": "When You Need It",
+        "description": "Start a conversation when something feels heavy."
       },
       "real": {
         "title": "Real Human Connection",
-        "description": "Connect with real people who understand the power of empathetic listening."
+        "description": "Not a bot. A person on the other side."
       },
       "compassionate": {
         "title": "Compassionate Space",
-        "description": "A warm, welcoming environment where your emotions are valued and respected."
+        "description": "No judgment. Just presence and care."
       }
     }
   },
-  "leadCapture": {
-    "title": "Join the Waitlist",
-    "subtitle": "Be first in line when we open. No spam — just one email when it's ready.",
-    "emailPlaceholder": "Your email address",
-    "phonePlaceholder": "Your phone number (optional)",
-    "submitButton": "Join Waitlist",
-    "submittingButton": "Joining...",
-    "successTitle": "You're on the list",
-    "successMessage": "Thanks for joining. We'll email you when Listener is ready.",
-    "alreadyTitle": "You're already on the list",
-    "alreadyMessage": "We already have your contact. We'll be in touch when we launch.",
-    "errorTitle": "Something went wrong",
-    "errorMessage": "Please try again in a moment.",
-    "validationError": "Please provide at least a valid email or phone number",
-    "privacyNote": "We respect your privacy. No spam, ever."
+  "chat": {
+    "titleTalk": "Talk — someone is listening",
+    "titleListen": "Listen mode",
+    "subtitle": "Private · live · human",
+    "welcomeTalk": "You're connected. Write what you need to share — a real person will listen and reply here.",
+    "welcomeListen": "Thanks for being willing to listen. When matching opens fully, you'll help others here. You can still message the host now.",
+    "placeholder": "Type a message…",
+    "initError": "Could not start chat. Database may still need setup.",
+    "sendError": "Message could not be sent. Try again."
   },
   "comfort": {
     "messages": [
@@ -77,9 +71,9 @@
     ]
   },
   "live": {
-    "building": "We're actively building the first version",
-    "waitlistOpen": "Waitlist open",
-    "honest": "No fake numbers — just real progress",
+    "building": "Live listening is open",
+    "waitlistOpen": "Human replies",
+    "honest": "Real conversations",
     "count": "{{count}} people waiting"
   },
   "breathe": {
@@ -95,6 +89,22 @@
   },
   "footer": {
     "tagline": "You never have to carry it alone.",
-    "copyright": "© 2026 Listener. Building a space for empathetic listening."
+    "copyright": "© 2026 Listener. A space for empathetic listening."
+  },
+  "leadCapture": {
+    "title": "Join the Waitlist",
+    "subtitle": "Optional updates only.",
+    "emailPlaceholder": "Your email address",
+    "phonePlaceholder": "Your phone number (optional)",
+    "submitButton": "Join Waitlist",
+    "submittingButton": "Joining...",
+    "successTitle": "You're on the list",
+    "successMessage": "Thanks. We'll be in touch if needed.",
+    "alreadyTitle": "You're already on the list",
+    "alreadyMessage": "We already have your contact.",
+    "errorTitle": "Something went wrong",
+    "errorMessage": "Please try again in a moment.",
+    "validationError": "Please provide at least a valid email or phone number",
+    "privacyNote": "We respect your privacy. No spam, ever."
   }
 }

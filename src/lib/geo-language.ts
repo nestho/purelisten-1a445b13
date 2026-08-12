@@ -1,8 +1,7 @@
 /**
- * Geo-based default language:
- * - Iran (IR) → Persian (fa)
- * - Everywhere else → English (en)
- * Manual choice in localStorage always wins.
+ * Iran → Persian (fa), everyone else → English (en).
+ * Manual override in localStorage always wins.
+ * Uses timezone + browser language + multiple geo APIs (ipapi often blocked in IR).
  */
 
 const STORAGE_KEY = "listener_lang_override";
@@ -23,14 +22,59 @@ export function setStoredLanguage(code: string) {
   }
 }
 
-export async function detectDefaultLanguage(): Promise<"en" | "fa"> {
+async function fetchCountryCode(): Promise<string | null> {
+  const endpoints = [
+    async () => {
+      const r = await fetch("https://api.country.is/", { signal: AbortSignal.timeout(2500) });
+      if (!r.ok) return null;
+      const d = (await r.json()) as { country?: string };
+      return d.country ?? null;
+    },
+    async () => {
+      const r = await fetch("https://ipwho.is/", { signal: AbortSignal.timeout(2500) });
+      if (!r.ok) return null;
+      const d = (await r.json()) as { country_code?: string };
+      return d.country_code ?? null;
+    },
+    async () => {
+      const r = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(2500) });
+      if (!r.ok) return null;
+      const d = (await r.json()) as { country_code?: string };
+      return d.country_code ?? null;
+    },
+  ];
+
+  for (const fn of endpoints) {
+    try {
+      const code = await fn();
+      if (code) return code.toUpperCase();
+    } catch {
+      // try next
+    }
+  }
+  return null;
+}
+
+export async function detectDefaultLanguage(): Promise<string> {
   const stored = getStoredLanguage();
-  if (stored === "en" || stored === "fa" || stored === "ar" || stored === "ja" || stored === "fr" || stored === "de") {
-    // If user previously chose any language, keep it
-    return stored === "fa" ? "fa" : (stored as "en");
+  if (stored && ["en", "fa", "ar", "ja", "fr", "de"].includes(stored)) {
+    return stored;
   }
 
-  // Soft timezone hint (Asia/Tehran)
+  // Browser language
+  try {
+    const langs = [
+      navigator.language,
+      ...(navigator.languages || []),
+    ].map((l) => l.toLowerCase());
+    if (langs.some((l) => l.startsWith("fa") || l.includes("persian") || l.includes("farsi"))) {
+      return "fa";
+    }
+  } catch {
+    // ignore
+  }
+
+  // Timezone (very reliable for users physically in Iran)
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (tz === "Asia/Tehran") return "fa";
@@ -38,21 +82,8 @@ export async function detectDefaultLanguage(): Promise<"en" | "fa"> {
     // ignore
   }
 
-  // IP geo (best-effort, free endpoint)
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2500);
-    const res = await fetch("https://ipapi.co/json/", {
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-    if (res.ok) {
-      const data = (await res.json()) as { country_code?: string };
-      if (data.country_code === "IR") return "fa";
-    }
-  } catch {
-    // offline / blocked — fall through to en
-  }
+  const country = await fetchCountryCode();
+  if (country === "IR") return "fa";
 
   return "en";
 }
