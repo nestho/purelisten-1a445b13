@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 /**
- * Forwards a visitor message to the operator Telegram chat.
+ * Forwards visitor message to Telegram and marks this session as the active one.
  * Env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -32,11 +32,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const text = content.trim().slice(0, 4000);
   if (!text) return res.status(400).json({ error: "Empty message" });
 
+  // Mark this session as most recently active (so plain Telegram replies go here)
+  if (supabaseUrl && serviceKey) {
+    await fetch(`${supabaseUrl}/rest/v1/chat_sessions?id=eq.${sessionId}`, {
+      method: "PATCH",
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ updated_at: new Date().toISOString(), status: "open" }),
+    });
+  }
+
   const shortId = sessionId.slice(0, 8);
   const header = isNewSession
-    ? `🆕 New talk session\n#${shortId}\n\n`
-    : `#${shortId}\n`;
-  const body = `${header}👤 Visitor:\n${text}\n\n↳ Reply to this message to answer on the website.`;
+    ? `🆕 New talk session  #${shortId}\n\n`
+    : `💬 #${shortId}\n`;
+  const body = `${header}👤 Visitor:\n${text}\n\n✍️ Just type your reply here — it goes to this person automatically.`;
 
   try {
     const tgRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -61,7 +75,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const telegramMessageId = tgData.result?.message_id;
 
-    // Store telegram_message_id for reply threading
     if (telegramMessageId && messageId && supabaseUrl && serviceKey) {
       await fetch(`${supabaseUrl}/rest/v1/chat_messages?id=eq.${messageId}`, {
         method: "PATCH",

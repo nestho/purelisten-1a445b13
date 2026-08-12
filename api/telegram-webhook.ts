@@ -1,8 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 /**
- * Telegram webhook: when you reply to a bot message, push the reply into the chat session.
- * Env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+ * Telegram webhook.
+ * You can just TYPE a reply in Telegram — it goes to the latest active open session.
+ * Optional: reply-to a specific message still works if you want to target an older chat.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -32,19 +33,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ ok: true });
   }
 
-  // Only accept messages from the operator chat
   if (allowedChat && String(msg.chat.id) !== String(allowedChat)) {
     return res.status(200).json({ ok: true });
   }
 
   const replyText = msg.text.trim();
-  if (!replyText || replyText.startsWith("/")) {
+  if (!replyText) {
+    return res.status(200).json({ ok: true });
+  }
+
+  // Commands
+  if (replyText.startsWith("/")) {
+    if (replyText === "/active" || replyText.startsWith("/active")) {
+      const active = await getActiveSession(supabaseUrl, serviceKey);
+      await sendTg(
+        token,
+        msg.chat.id,
+        active
+          ? `Active session: #${active.id.slice(0, 8)}\nUpdated: ${active.updated_at}`
+          : "No open session right now."
+      );
+    }
     return res.status(200).json({ ok: true });
   }
 
   let sessionId: string | null = null;
 
-  // Prefer reply-to → look up telegram_message_id
+  // Optional: if you reply-to a specific Telegram message, use that session
   if (msg.reply_to_message?.message_id) {
     const lookup = await fetch(
       `${supabaseUrl}/rest/v1/chat_messages?telegram_message_id=eq.${msg.reply_to_message.message_id}&select=session_id&limit=1`,
@@ -59,39 +74,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (rows?.[0]?.session_id) sessionId = rows[0].session_id;
   }
 
-  // Fallback: parse #xxxxxxxx from reply_to text or message text
+  // Default: latest open session (most recent visitor activity)
   if (!sessionId) {
-    const source = msg.reply_to_message?.text || replyText;
-    const match = source.match(/#([a-f0-9]{8})/i);
-    if (match) {
-      const short = match[1].toLowerCase();
-      const lookup = await fetch(
-        `${supabaseUrl}/rest/v1/chat_sessions?id=like.${short}*&status=eq.open&select=id&order=created_at.desc&limit=1`,
-        {
-          headers: {
-            apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`,
-          },
-        }
-      );
-      const rows = (await lookup.json()) as { id: string }[];
-      if (rows?.[0]?.id) sessionId = rows[0].id;
-    }
+    const active = await getActiveSession(supabaseUrl, serviceKey);
+    if (active) sessionId = active.id;
   }
 
   if (!sessionId) {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: msg.chat.id,
-        text: "Could not find the chat session. Reply directly to a visitor message (swipe/reply).",
-      }),
-    });
+    await sendTg(
+      token,
+      msg.chat.id,
+      "No open visitor chat right now. When someone writes on the website, just type here to answer."
+    );
     return res.status(200).json({ ok: true });
   }
 
-  // Insert operator message
   await fetch(`${supabaseUrl}/rest/v1/chat_messages`, {
     method: "POST",
     headers: {
@@ -107,5 +104,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }),
   });
 
+  // Confirm lightly (optional short ack — comment out if too noisy)
+  // await sendTg(token, msg.chat.id, `✓ sent to #${sessionId.slice(0, 8)}`);
+
   return res.status(200).json({ ok: true });
+}
+
+async function getActiveSession(
+  supabaseUrl: string,
+  serviceKey: string
+): Promise<{ id: string; updated_at: string } | null> {
+  const lookup = await fetch(
+    `${supabaseUrl}/rest/v1/chat_sessions?status=eq.open&select=id,updated_at&order=updated_at.desc&limit=1`,
+    {
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+      },
+    }
+  );
+  const rows = (await lookup.json()) as { id: string; updated_at: string }[];
+  return rows?.[0] ?? null;
+}
+
+async function sendTg(token: string, chatId: number, text: string) {
+  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, text }),
+  });
 }
