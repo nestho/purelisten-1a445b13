@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   X,
   Send,
@@ -58,6 +56,9 @@ function detectMediaType(file: File): string {
   return "file";
 }
 
+const fieldClass =
+  "w-full rounded-2xl border border-white/15 bg-[#1a1d26] px-4 text-[16px] leading-normal text-[#f3f0ea] placeholder:text-white/35 outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/25 caret-[#f4865a] disabled:opacity-50";
+
 const MediaBubble = ({ m, outgoing }: { m: Msg; outgoing: boolean }) => {
   if (!m.media_url && !m.content) return null;
   const isVoice = m.media_type === "voice" || m.media_type === "audio";
@@ -106,10 +107,10 @@ const MediaBubble = ({ m, outgoing }: { m: Msg; outgoing: boolean }) => {
         </a>
       )}
       {m.content && m.media_type !== "link" && (
-        <p className="whitespace-pre-wrap break-words leading-relaxed">{m.content}</p>
+        <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">{m.content}</p>
       )}
       {(!m.media_type || m.media_type === "text") && m.content && !m.media_url && (
-        <p className="whitespace-pre-wrap break-words leading-relaxed">{m.content}</p>
+        <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">{m.content}</p>
       )}
     </div>
   );
@@ -130,6 +131,7 @@ const ChatPanel = ({
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [ready, setReady] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
   const [recordSecs, setRecordSecs] = useState(0);
@@ -163,9 +165,10 @@ const ChatPanel = ({
 
   const startChat = async (displayName: string) => {
     const clean = displayName.trim().slice(0, 40);
-    if (!clean) return;
+    if (!clean || starting) return;
     visitorNameRef.current = clean;
     setError(null);
+    setStarting(true);
 
     try {
       const visitorKey = getVisitorKey();
@@ -223,13 +226,13 @@ const ChatPanel = ({
         .subscribe();
 
       setReady(true);
-
-      // cleanup handled on unmount via channel name — store on window weak map simplified:
       (window as unknown as { __listenerChannel?: ReturnType<typeof supabase.channel> }).__listenerChannel =
         channel;
     } catch (e) {
       console.error(e);
       setError(t("chat.initError", "Could not start. Please try again."));
+    } finally {
+      setStarting(false);
     }
   };
 
@@ -382,29 +385,29 @@ const ChatPanel = ({
     }
   };
 
-  // ——— Name step (warm, minimal) ———
   if (step === "name") {
     return (
-      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-md p-4 sm:p-6">
-        <div className="w-full sm:max-w-md rounded-[1.75rem] bg-[#12141a] border border-white/8 shadow-2xl p-7 sm:p-8 space-y-6 animate-scale-in">
-          <div className="flex justify-end">
+      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/65 backdrop-blur-md p-4 sm:p-6">
+        <div className="w-full sm:max-w-md rounded-[1.75rem] bg-[#14161e] border border-white/10 shadow-2xl p-7 sm:p-8 space-y-6">
+          <div className="flex justify-end -mt-1 -mr-1">
             <button
               type="button"
               onClick={onClose}
-              className="h-8 w-8 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8"
+              className="h-9 w-9 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10"
+              aria-label="Close"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
           </div>
 
           <div className="text-center space-y-4">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-warm/20 ring-1 ring-primary/30">
-              <Heart className="h-6 w-6 text-primary" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#f4865a]/15 ring-1 ring-[#f4865a]/35">
+              <Heart className="h-6 w-6 text-[#f4865a]" />
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl text-white leading-snug">
+            <h2 className="font-serif text-[1.75rem] sm:text-[2rem] text-[#f5f2ec] leading-snug tracking-tight">
               {t("chat.askNameTitle", "Before we begin…")}
             </h2>
-            <p className="text-sm text-white/55 leading-relaxed max-w-sm mx-auto">
+            <p className="text-[15px] text-white/60 leading-relaxed max-w-sm mx-auto">
               {t(
                 "chat.askNameBody",
                 "What should we call you? Just a first name is enough. This space is private — no judgment, only listening."
@@ -419,23 +422,37 @@ const ChatPanel = ({
               void startChat(name);
             }}
           >
-            <Input
+            <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t("chat.namePlaceholder", "Your name")}
               maxLength={40}
               autoFocus
-              className="h-12 rounded-2xl bg-white/6 border-white/10 text-white text-center text-base placeholder:text-white/30 focus-visible:ring-primary/40"
+              autoComplete="given-name"
+              spellCheck={false}
+              className={`${fieldClass} h-14 text-center text-[17px] font-medium`}
+              style={{
+                WebkitTextFillColor: "#f3f0ea",
+                color: "#f3f0ea",
+                backgroundColor: "#1a1d26",
+              }}
             />
-            {error && <p className="text-xs text-red-400 text-center">{error}</p>}
-            <Button
+            {error && <p className="text-sm text-red-400 text-center">{error}</p>}
+            <button
               type="submit"
-              disabled={!name.trim()}
-              className="w-full h-12 rounded-2xl bg-gradient-warm border-0 text-white font-medium shadow-soft hover:opacity-95"
+              disabled={!name.trim() || starting}
+              className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#f4865a] to-[#e86b3a] text-white text-[16px] font-semibold shadow-lg shadow-[#e86b3a]/25 hover:opacity-95 disabled:opacity-40 transition"
             >
-              {t("chat.enterChat", "I'm ready to talk")}
-            </Button>
-            <p className="text-[11px] text-white/30 text-center leading-relaxed">
+              {starting ? (
+                <span className="inline-flex items-center gap-2 justify-center">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  …
+                </span>
+              ) : (
+                t("chat.enterChat", "I'm ready to talk")
+              )}
+            </button>
+            <p className="text-[12px] text-white/40 text-center leading-relaxed px-2">
               {t(
                 "chat.namePrivacy",
                 "We only use your name to speak to you kindly. You can share as much or as little as you want."
@@ -447,24 +464,23 @@ const ChatPanel = ({
     );
   }
 
-  // ——— Chat ———
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/55 backdrop-blur-md p-0 sm:p-6">
-      <div className="w-full sm:max-w-md h-[94svh] sm:h-[min(720px,92vh)] rounded-t-[1.75rem] sm:rounded-[1.75rem] bg-[#12141a]/95 border border-white/8 shadow-2xl flex flex-col overflow-hidden">
-        <header className="flex items-center justify-between px-4 py-3.5 border-b border-white/6 bg-white/[0.02]">
-          <div className="flex items-center gap-3">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-warm shadow-glow">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-md p-0 sm:p-6">
+      <div className="w-full sm:max-w-md h-[94svh] sm:h-[min(720px,92vh)] rounded-t-[1.75rem] sm:rounded-[1.75rem] bg-[#12141a] border border-white/10 shadow-2xl flex flex-col overflow-hidden">
+        <header className="flex items-center justify-between px-4 py-3.5 border-b border-white/8 bg-[#161922]">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f4865a] to-[#e86b3a]">
               <Heart className="h-4 w-4 text-white" />
-              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-hope ring-2 ring-[#12141a]" />
+              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[#6bcf8e] ring-2 ring-[#12141a]" />
             </div>
-            <div>
-              <p className="font-semibold text-sm text-white/95">
+            <div className="min-w-0">
+              <p className="font-semibold text-[15px] text-[#f5f2ec] truncate">
                 {visitorNameRef.current
                   ? t("chat.helloName", "Hi, {{name}}", { name: visitorNameRef.current })
                   : t("chat.titleTalk", "Someone is listening")}
               </p>
-              <p className="text-[11px] text-white/45 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-hope animate-pulse" />
+              <p className="text-[12px] text-white/50 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#6bcf8e] animate-pulse" />
                 {t("chat.subtitle", "Live · private · human")}
               </p>
             </div>
@@ -472,18 +488,18 @@ const ChatPanel = ({
           <button
             type="button"
             onClick={onClose}
-            className="h-9 w-9 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/8 transition"
+            className="h-10 w-10 rounded-full flex items-center justify-center text-white/55 hover:text-white hover:bg-white/10"
           >
             <X className="h-5 w-5" />
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-2.5">
+        <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-3">
           {messages.map((m) => {
             if (m.role === "system") {
               return (
-                <div key={m.id} className="flex justify-center py-3 px-2">
-                  <p className="text-[12px] text-white/45 text-center max-w-[90%] leading-relaxed font-serif italic">
+                <div key={m.id} className="flex justify-center py-3 px-3">
+                  <p className="text-[13px] text-white/50 text-center max-w-[92%] leading-relaxed font-serif italic">
                     {m.content}
                   </p>
                 </div>
@@ -493,10 +509,10 @@ const ChatPanel = ({
             return (
               <div key={m.id} className={`flex ${outgoing ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[82%] rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-relaxed ${
+                  className={`max-w-[84%] rounded-2xl px-4 py-2.5 ${
                     outgoing
-                      ? "bg-gradient-to-br from-[#f4865a] to-[#e86b3a] text-white rounded-br-md"
-                      : "bg-[#1c1f28] text-white/90 border border-white/6 rounded-bl-md"
+                      ? "bg-gradient-to-br from-[#f4865a] to-[#e05a2e] text-white rounded-br-md"
+                      : "bg-[#1c1f28] text-[#f0ede6] border border-white/10 rounded-bl-md"
                   }`}
                 >
                   <MediaBubble m={m} outgoing={outgoing} />
@@ -507,20 +523,20 @@ const ChatPanel = ({
           <div ref={bottomRef} />
         </div>
 
-        {error && <p className="px-4 text-[11px] text-red-400 text-center pb-1">{error}</p>}
+        {error && <p className="px-4 text-sm text-red-400 text-center pb-1">{error}</p>}
 
         {recording && (
-          <div className="mx-3 mb-1 flex items-center gap-2 rounded-full bg-red-500/15 border border-red-500/25 px-3 py-1.5">
+          <div className="mx-3 mb-1 flex items-center gap-2 rounded-full bg-red-500/15 border border-red-500/30 px-3 py-2">
             <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-xs text-red-300 tabular-nums">
+            <span className="text-sm text-red-300 tabular-nums">
               {Math.floor(recordSecs / 60)}:{(recordSecs % 60).toString().padStart(2, "0")}
             </span>
-            <span className="text-[11px] text-white/40 ml-auto">Tap mic to send</span>
+            <span className="text-xs text-white/45 ml-auto">Tap mic to send</span>
           </div>
         )}
 
         <form
-          className="p-3 pt-2 border-t border-white/6 flex gap-1.5 items-center bg-[#0e1015]/80"
+          className="p-3 pt-2 border-t border-white/8 flex gap-1.5 items-center bg-[#0e1015]"
           onSubmit={(e) => {
             e.preventDefault();
             void sendPayload({ text: input });
@@ -541,38 +557,42 @@ const ChatPanel = ({
             type="button"
             disabled={!ready || sending}
             onClick={() => fileRef.current?.click()}
-            className="h-10 w-10 rounded-full flex items-center justify-center text-white/45 hover:text-white hover:bg-white/8"
+            className="h-11 w-11 rounded-full flex items-center justify-center text-white/55 hover:text-white hover:bg-white/10 disabled:opacity-40"
           >
-            <Paperclip className="h-4 w-4" />
+            <Paperclip className="h-5 w-5" />
           </button>
           <button
             type="button"
             disabled={!ready || sending}
             onClick={() => void toggleRecord()}
-            className={`h-10 w-10 rounded-full flex items-center justify-center ${
+            className={`h-11 w-11 rounded-full flex items-center justify-center ${
               recording
                 ? "bg-red-500 text-white shadow-lg shadow-red-500/30"
-                : "text-white/45 hover:text-white hover:bg-white/8"
+                : "text-white/55 hover:text-white hover:bg-white/10"
             }`}
           >
-            <Mic className={`h-4 w-4 ${recording ? "animate-pulse" : ""}`} />
+            <Mic className={`h-5 w-5 ${recording ? "animate-pulse" : ""}`} />
           </button>
-          <Input
+          <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={t("chat.placeholder", "Share what's on your mind…")}
             disabled={!ready || sending}
             maxLength={4000}
-            className="flex-1 h-11 rounded-full bg-white/6 border-white/8 text-white placeholder:text-white/30"
+            className={`${fieldClass} flex-1 h-12 px-4 text-[15px]`}
+            style={{
+              WebkitTextFillColor: "#f3f0ea",
+              color: "#f3f0ea",
+              backgroundColor: "#1a1d26",
+            }}
           />
-          <Button
+          <button
             type="submit"
-            size="icon"
             disabled={!ready || sending || !input.trim()}
-            className="h-10 w-10 rounded-full bg-gradient-warm border-0"
+            className="h-11 w-11 rounded-full flex items-center justify-center bg-gradient-to-br from-[#f4865a] to-[#e86b3a] text-white disabled:opacity-40 shadow-md shadow-[#e86b3a]/20"
           >
             {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </Button>
+          </button>
         </form>
       </div>
     </div>
