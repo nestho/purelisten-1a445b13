@@ -12,7 +12,7 @@ const KEYS = [
 const FALLBACKS = [
   "You are not too much. You are not too late.",
   "This feeling is heavy, but it is not permanent.",
-  "Someone is awake right now, ready to listen to you.",
+  "You don't have to face everything alone.",
   "You don't need the right words. Just start.",
   "Being here, reading this, is already a step forward.",
 ];

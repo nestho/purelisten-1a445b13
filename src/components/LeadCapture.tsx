@@ -8,18 +8,25 @@ import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 
-const leadSchema = z.object({
-  email: z.string().trim().email("Please enter a valid email").max(255).optional().or(z.literal("")),
-  phone: z
-    .string()
-    .trim()
-    .regex(/^\+?[1-9]\d{7,14}$/, "Please enter a valid phone number")
-    .optional()
-    .or(z.literal("")),
-}).refine(
-  (data) => data.email || data.phone,
-  { message: "Please provide at least an email or phone number" }
-);
+const leadSchema = z
+  .object({
+    email: z
+      .string()
+      .trim()
+      .email("Please enter a valid email")
+      .max(255)
+      .optional()
+      .or(z.literal("")),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^\+?[1-9]\d{7,14}$/, "Please enter a valid phone number")
+      .optional()
+      .or(z.literal("")),
+  })
+  .refine((data) => data.email || data.phone, {
+    message: "Please provide at least an email or phone number",
+  });
 
 const LeadCapture = () => {
   const [email, setEmail] = useState("");
@@ -31,17 +38,16 @@ const LeadCapture = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate input
-    const validation = leadSchema.safeParse({ 
-      email: email || undefined, 
-      phone: phone || undefined 
+
+    const validation = leadSchema.safeParse({
+      email: email || undefined,
+      phone: phone || undefined,
     });
 
     if (!validation.success) {
       toast({
-        title: t('leadCapture.errorTitle'),
-        description: t('leadCapture.validationError'),
+        title: t("leadCapture.errorTitle"),
+        description: t("leadCapture.validationError"),
         variant: "destructive",
       });
       return;
@@ -50,30 +56,42 @@ const LeadCapture = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from("leads")
-        .insert([{ 
-          email: email || null, 
-          phone: phone || null 
-        }]);
+      const { error } = await supabase.from("leads").insert([
+        {
+          email: email.trim() || null,
+          phone: phone.trim() || null,
+        },
+      ]);
 
-      if (error) throw error;
+      if (error) {
+        // Unique violation → already on the list
+        if (
+          error.code === "23505" ||
+          error.message?.toLowerCase().includes("duplicate") ||
+          error.message?.toLowerCase().includes("unique")
+        ) {
+          setIsSuccess(true);
+          toast({
+            title: t("leadCapture.alreadyTitle"),
+            description: t("leadCapture.alreadyMessage"),
+          });
+          return;
+        }
+        throw error;
+      }
 
       setIsSuccess(true);
       setEmail("");
       setPhone("");
-      
-      toast({
-        title: t('leadCapture.successTitle'),
-        description: t('leadCapture.successMessage'),
-      });
 
-      // Reset success state after 5 seconds
-      setTimeout(() => setIsSuccess(false), 5000);
-    } catch (error) {
       toast({
-        title: t('leadCapture.errorTitle'),
-        description: t('leadCapture.errorMessage'),
+        title: t("leadCapture.successTitle"),
+        description: t("leadCapture.successMessage"),
+      });
+    } catch {
+      toast({
+        title: t("leadCapture.errorTitle"),
+        description: t("leadCapture.errorMessage"),
         variant: "destructive",
       });
     } finally {
@@ -88,10 +106,8 @@ const LeadCapture = () => {
           <div className="w-16 h-16 rounded-full bg-gradient-warm flex items-center justify-center">
             <CheckCircle2 className="w-8 h-8 text-primary-foreground" />
           </div>
-          <h3 className="text-2xl font-semibold">{t('leadCapture.successTitle')}</h3>
-          <p className="text-muted-foreground">
-            {t('leadCapture.successMessage')}
-          </p>
+          <h3 className="text-2xl font-semibold">{t("leadCapture.successTitle")}</h3>
+          <p className="text-muted-foreground">{t("leadCapture.successMessage")}</p>
         </div>
       </Card>
     );
@@ -105,8 +121,8 @@ const LeadCapture = () => {
             <Sparkles className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold">{t('leadCapture.title')}</h3>
-            <p className="text-sm text-muted-foreground">{t('leadCapture.subtitle')}</p>
+            <h3 className="text-xl font-semibold">{t("leadCapture.title")}</h3>
+            <p className="text-sm text-muted-foreground">{t("leadCapture.subtitle")}</p>
           </div>
         </div>
 
@@ -116,11 +132,12 @@ const LeadCapture = () => {
               <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
               <Input
                 type="email"
-                placeholder={t('leadCapture.emailPlaceholder')}
+                placeholder={t("leadCapture.emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10"
                 maxLength={255}
+                autoComplete="email"
               />
             </div>
           </div>
@@ -136,26 +153,27 @@ const LeadCapture = () => {
               <Phone className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
               <Input
                 type="tel"
-                placeholder={t('leadCapture.phonePlaceholder')}
+                placeholder={t("leadCapture.phonePlaceholder")}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="pl-10"
                 maxLength={20}
+                autoComplete="tel"
               />
             </div>
           </div>
 
-          <Button 
-            type="submit" 
-            variant="hero" 
-            className="w-full" 
-            disabled={isSubmitting || (!email && !phone)}
+          <Button
+            type="submit"
+            variant="hero"
+            className="w-full"
+            disabled={isSubmitting || (!email.trim() && !phone.trim())}
           >
-            {isSubmitting ? t('leadCapture.submittingButton') : t('leadCapture.submitButton')}
+            {isSubmitting ? t("leadCapture.submittingButton") : t("leadCapture.submitButton")}
           </Button>
 
           <p className="text-xs text-center text-muted-foreground">
-            {t('leadCapture.privacyNote')}
+            {t("leadCapture.privacyNote")}
           </p>
         </form>
       </div>

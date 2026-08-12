@@ -1,9 +1,9 @@
 {
   "hero": {
-    "badge": "A Space for Empathetic Listening",
+    "badge": "Coming soon — join the waitlist",
     "title": "Sometimes, all you need",
     "titleHighlight": "someone to listen",
-    "subtitle": "Listener is a safe space where you can share your thoughts freely, and receive compassionate support when you need it.",
+    "subtitle": "Listener is a free, anonymous space for empathetic listening. We're building the first version now — join the waitlist and be among the first to try it.",
     "talkButton": "I Need to Talk",
     "listenButton": "I Want to Listen",
     "footer": "Free, anonymous, and judgment-free"
@@ -11,7 +11,7 @@
   "howItWorks": {
     "title": "How",
     "titleHighlight": "Listener",
-    "titleEnd": "Works",
+    "titleEnd": "Will Work",
     "subtitle": "A simple, compassionate approach to human connection",
     "steps": {
       "share": {
@@ -29,17 +29,17 @@
     }
   },
   "features": {
-    "title": "Why Choose",
+    "title": "Why",
     "titleHighlight": "Listener",
     "subtitle": "Built on the foundation of empathy and human connection",
     "items": {
       "private": {
         "title": "Private & Anonymous",
-        "description": "Your conversations are confidential. Share freely without worrying about judgment."
+        "description": "Your conversations stay confidential. Share freely without worrying about judgment."
       },
       "available": {
-        "title": "Available 24/7",
-        "description": "Whenever you need support, there's someone ready to listen with empathy."
+        "title": "Available When You Need It",
+        "description": "Support shouldn't only exist during office hours. We're building for real life."
       },
       "real": {
         "title": "Real Human Connection",
@@ -53,31 +53,28 @@
   },
   "leadCapture": {
     "title": "Join the Waitlist",
-    "subtitle": "Be the first to know when we launch. We'll keep you updated!",
+    "subtitle": "Be first in line when we open. No spam — just one email when it's ready.",
     "emailPlaceholder": "Your email address",
     "phonePlaceholder": "Your phone number (optional)",
     "submitButton": "Join Waitlist",
     "submittingButton": "Joining...",
-    "successTitle": "Welcome aboard! 🎉",
-    "successMessage": "Thank you for joining our waitlist. We'll be in touch soon!",
+    "successTitle": "You're on the list",
+    "successMessage": "Thanks for joining. We'll email you when Listener is ready.",
+    "alreadyTitle": "You're already on the list",
+    "alreadyMessage": "We already have your contact. We'll be in touch when we launch.",
     "errorTitle": "Something went wrong",
-    "errorMessage": "Please try again later.",
-    "validationError": "Please provide at least an email or phone number",
+    "errorMessage": "Please try again in a moment.",
+    "validationError": "Please provide at least a valid email or phone number",
     "privacyNote": "We respect your privacy. No spam, ever."
   },
   "comfort": {
     "messages": [
       "You are not too much. You are not too late.",
       "This feeling is heavy, but it is not permanent.",
-      "Someone is awake right now, ready to listen to you.",
+      "You don't have to face everything alone.",
       "You don't need the right words. Just start.",
       "Being here, reading this, is already a step forward."
     ]
-  },
-  "liveStats": {
-    "listeners": "listeners online right now",
-    "conversations": "conversations held",
-    "hearts": "moments of comfort shared"
   },
   "breathe": {
     "title": "Feeling overwhelmed?",
@@ -92,7 +89,6 @@
   },
   "footer": {
     "tagline": "You never have to carry it alone.",
-    "copyright": "© 2025 Listener. A space for empathetic listening and human connection."
+    "copyright": "© 2026 Listener. Building a space for empathetic listening."
   }
 }
-
